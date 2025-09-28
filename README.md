@@ -37,12 +37,3 @@ Users can communicate through **private one-to-one conversations** or **group ch
 
 ---
 
-## 📂 Deliverables  
-- 📑 **Requirements Documentation (SRS)**  
-- 🎨 **Design Diagrams (Use Case, Class, Sequence)**  
-- 💻 **Java Source Code (Server & Client apps)**  
-- ✅ **JUnit Test Suite**  
-- 🖥️ **Presentation Slides**  
-
----
-
