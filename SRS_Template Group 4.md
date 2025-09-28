@@ -1,6 +1,3 @@
-- **ADD IDEAS IN RED. MEETING AGAIN ON 9/27 @7PM**     
-- **Possible functional requirements?: Ensuring that**    
-- 
 
 **Group 4: Communications** 
 
@@ -11,23 +8,7 @@ Revision History
 | Date | Revision | Description | Author |
 | :---- | :---- | :---- | :---- |
 | mm/dd/yyyy | 1.0 | Initial Version | Your Name |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
+
 
    
 	Table of Contents
@@ -61,40 +42,29 @@ Revision History
 
 1. # **Purpose** {#purpose}
 
-   This document outlines the requirements for the Mine Pump Control System (MPC).
-
    This document outlines the requirements for the communications system  
 
-   This SRS defines the requirements for a **Communications System** for a large organization. The goal is to provide both **synchronous (real-time)** and **asynchronous (delayed)** chat functionalities with support for **private and group chats**. IT administrators will be able to **monitor all chat logs**, while general users will have restricted access to their own conversations.
+   This SRS defines the requirements for a communication system for a very large organization. The goal is to provide both **synchronous (real-time)** and **asynchronous (delayed)** chat functionalities with support for **private and group chats**. IT administrators will be able to **monitor all chat logs**, while general users will have restricted access to their own conversations.
 
    1. ## **Scope** {#scope}
 
-      This document will catalog the user, system, and hardware requirements for the Communication system. We will not, however, document how these requirements will be implemented.
+      This document will catalog the user, system, and hardware requirements for the Communication System. We will not, however, document how these requirements will be implemented.
 
       
-
-      Potential : The system will: 
-
-      Operate as a Java desktop application using TCP/IP sockets for communication.
-
-      Provide two GUIs: one for general users, one for IT administrators.
-
-      Support private one-to-one chats and group conversations.
-
-      Enable notifications for new messages.
-
-      Allow IT administrators to view complete conversation logs for auditing.
-
-      Restrict file transfer: only text messages allowed.
-
-      Function as client-server architecture with a centralized server handling connections.
+1.1 
+      The system will operate as a Java desktop application using TCP/IP sockets for communication.
+	  Maintain conversation logs in text files with timestamos, senders unique ID, and chat type (private/group) 
+	  Provide a single GUI interface for general users and for IT administrators.
+	  Support private one-to-one chats and group conversations.
+	  Enable notifications for new messages.
+	  Enforce text-only chats
+	  Function as client-server  with a centralized server handling connections.
 
       
 
 Constraints:
 
-* No external frameworks, libraries, databases, or HTML/web components allowed.
-
+* No external frameworks, libraries, databases, or HTML/web components will be allowed.
 * All logs must be stored in **local files** on the server.  
 * All users must be on the same local server.  
 * All chats must be text-based.
