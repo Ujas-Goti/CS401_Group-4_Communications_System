@@ -1,22 +1,48 @@
-# Communications System
-CS 401-01 Group 4 Java Communications System Project
-Group Members : 
-Ujas Kalpeshbhai Goti
-Carlos Martin
-Carlos Orozco
-Diana Campos
+# 📡 Communications System  
+**CS 401-01 – Group 4 Java Communications System Project**  
 
-Project Overview :
-The Communications System is a Java-based client–server application designed for large organizations to enable secure, text-only messaging. The system supports both synchronous (real-time) and asynchronous (delayed) chat, with options for private one-to-one conversations and group messaging.
+### 👥 Group Members  
+- Ujas Kalpeshbhai Goti  
+- Carlos Martin  
+- Carlos Orozco  
+- Diana Campos  
 
-Key features include:
+---
 
-Role-based access with distinct GUIs for IT administrators and general users.
+## 📖 Project Overview  
+The **Communications System** is a **Java-based client–server application** designed for large organizations to enable **secure, text-only messaging**.  
+It supports both:  
+- **Synchronous (real-time)** chat  
+- **Asynchronous (delayed)** chat  
 
-Conversation logging stored on the server for auditing and compliance.
+Users can communicate through **private one-to-one conversations** or **group chats**.  
 
-Notifications for new messages.
+---
 
-Cross-platform compatibility via TCP/IP sockets (no external frameworks or databases).
+## ✨ Key Features  
+- 🔑 **Role-Based Access** – Separate GUIs for IT administrators (with monitoring) and general users (messaging only).  
+- 📝 **Conversation Logging** – All messages stored on the server for auditing and compliance.  
+- 🔔 **Notifications** – Alerts for new incoming messages.  
+- 🌍 **Cross-Platform Compatibility** – Runs on any system with Java using TCP/IP sockets.  
+- ⚡ **Lightweight** – No external frameworks, databases, or web components.  
 
-This project demonstrates software engineering principles through requirements documentation (SRS), design diagrams, implementation in Java, unit testing with JUnit, and version control using GitHub.
+---
+
+## 🛠 Technologies Used  
+- **Java (SE 8 or later)**  
+- **TCP/IP Socket Programming**  
+- **Swing GUI Toolkit** (for user interfaces)  
+- **JUnit** (for unit testing)  
+- **GitHub** (for version control & collaboration)  
+
+---
+
+## 📂 Deliverables  
+- 📑 **Requirements Documentation (SRS)**  
+- 🎨 **Design Diagrams (Use Case, Class, Sequence)**  
+- 💻 **Java Source Code (Server & Client apps)**  
+- ✅ **JUnit Test Suite**  
+- 🖥️ **Presentation Slides**  
+
+---
+
