@@ -10,6 +10,7 @@
 ---
 
 ## 📖 Project Overview  
+
 The **Communications System** is a **Java-based client–server application** designed for large organizations to enable **secure, text-only messaging**.  
 It supports both:  
 - **Synchronous (real-time)** chat  
@@ -24,7 +25,8 @@ Users can communicate through **private one-to-one conversations** or **group ch
 - 📝 **Conversation Logging** – All messages stored on the server for auditing and compliance.  
 - 🔔 **Notifications** – Alerts for new incoming messages.  
 - 🌍 **Cross-Platform Compatibility** – Runs on any system with Java using TCP/IP sockets.  
-- ⚡ **Lightweight** – No external frameworks, databases, or web components.  
+- ⚡ **Lightweight** – No external frameworks, databases, or web components.
+-   **Users of the system will log in using a unique ID, passwords will be hashed   
 
 ---
 
@@ -40,3 +42,5 @@ Users can communicate through **private one-to-one conversations** or **group ch
 ## Project Constraints
 - **Text based chats only**
 - **Users must be within the same organization's local network in order to chat**
+- **Messages must be delivered in under 5 seconds under normal connection
+   
