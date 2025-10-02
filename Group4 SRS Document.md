@@ -41,14 +41,34 @@ Revision History
 4.3.	Performance Requirements	[8](#performance-requirements)
 
 1. # **Purpose** {#purpose}
+ 
+   This SRS document outlines and defines the requirements of a communication system for a very large organization. The goal is to provide both synchronous(real-time) and asynchronous(delayed) chat functionalities with the support for private and group chats. IT administrators will have access to monitor all chat logs, while general users will have restricted access to their own conversations.
 
-   This document outlines the requirements for the communications system  
+   1.1 ## **Scope** {#scope}
 
-   This SRS defines the requirements for a communication system for a very large organization. The goal is to provide both **synchronous (real-time)** and **asynchronous (delayed)** chat functionalities with support for **private and group chats**. IT administrators will be able to **monitor all chat logs**, while general users will have restricted access to their own conversations.
+   This document will catalog the user, the system, and the hardware requirements for the communication system. It will not, however, document how these requirements will be implemented.
+   
 
-   1. ## **Scope** {#scope}
+   1.2 ## **Definitions, Acronyms, Abbreviations** {#definitions,-acronyms,-abbreviations}
 
-      This document will catalog the user, system, and hardware requirements for the Communication System. We will not, however, document how these requirements will be implemented.
+     GUI – Graphical User Interface
+
+     TCP/IP – Transmission Control Protocol / Internet Protocol
+
+     IT User – Administrator with monitoring privileges
+
+     General User – Employee with standard chat privileges
+
+
+   1.3. ## **References** {#references}
+
+     Group project descriptions slide (08282025.odp) pg.12
+
+     Developing Requirements lecture slides (developing_requirements.odp)
+
+   	 SRS Template.docx 
+   
+   
 
       
 1.1 
@@ -70,22 +90,10 @@ Constraints:
 * All chats must be text-based.
 
 
-  2. ## **Definitions, Acronyms, Abbreviations** {#definitions,-acronyms,-abbreviations}
-
-     GUI – Graphical User Interface
-
-     TCP/IP – Transmission Control Protocol / Internet Protocol
-
-     IT User – Administrator with monitoring privileges
-
-     General User – Employee with standard chat privileges
+ 
 
 
-  3. ## **References** {#references}
 
-     Project description handout (CS401)
-
-     Lecture slides on Functional & Non-Functional Requirements
 
      
 
