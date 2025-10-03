@@ -91,24 +91,30 @@ Revision History
 This system will be a standalone Java application designed to enable secure real-time text information between users. The server application manages connections, message routing, and logging. The client application provides the user interface for messaging.
 
 
-2.2 ## **Product Architecture ** {#Product Architecture}
+2.2 ## **Product Architecture** {#Product Architecture}
 
 The system will be organized into two major sub-systems: a client side application and a server side application. 
 Server Application (back-end server): Routes all messages, manages authentication, manages client connections, manages chat history, and stores logs in text files
 Client Application (front end): Provides the user with an interface (GUI) for sending/receiving text messages. IT admin clients can request server logs from text files.
 
+2.3 ## **Product Functionality/Features** {Product Functionality/Features}
 
-      
+The high-level features of the system are as follows. See section 3 of this document for more detailed requirements that address these features. 
+
+Private and group chats 
+Synchronous and asynchronous messaging 
+Notifications for new messages 
+Chat log access for IT admins 
+Secure Log in with username and password 
 
 
-      
+2.4 ## **Constraints**
 
-Constraints:
+The application must run on any system with a Java runtime 
+All users must be on the same organizational local network (LAN)
+All chats must be text-based 
+Conversation and Authentication can only be store in append-only text file
 
-* No external frameworks, libraries, databases, or HTML/web components will be allowed.
-* All logs must be stored in **local files** on the server.  
-* All users must be on the same local server.  
-* All chats must be text-based.
 
 
  
