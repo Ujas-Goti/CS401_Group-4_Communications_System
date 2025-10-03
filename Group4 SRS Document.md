@@ -148,97 +148,79 @@ The application is dependent on text files for the storage of chat logs and user
    
       
 
-3. # **Specific Requirements** {#specific-requirements}
+## 3. Specific Requirements
 
-   1. ## **Functional Requirements (Describe What the system must do)** {#functional-requirements-(describe-what-the-system-must-do)}
+### 3.1 Functional Requirements
 
-      1. ### **Common Requirements:**
+#### 3.1.1 Common Requirements
+- Users must log in with a unique username and secure password.  
+- Users can send and receive private messages and group messages.  
+- Users receive notifications for new messages.  
+- Messages must be logged in text files (append-only).  
 
-      Provide requirements that apply to all components as appropriate. 
+#### 3.1.2 IT Admin Module Requirements
+- IT admins shall be able to view chat logs in real-time sessions.  
+- IT admins shall be able to search through the chat logs based on a unique userID and/or a unique groupID.  
 
-      Example:
+#### 3.1.3 Chat Management Module Requirements
+- Chat management shall be able to send text messages instantly in a group chat or a private chat.  
+- Chat management shall generate a unique chat ID for every chat that gets created.  
+- Chat management shall load old chat logs and update them with new messages.  
 
-      3.1.1.1 Users should be allowed to log in using their issued id and pin, both of which are alphanumeric strings between 6 and 20 characters in length.
+#### 3.1.4 Logger Module Requirements
+- The logger shall include a timestamp for all recorded logs.  
+- The logger shall record when chats are created (private or group) and list participants (regular users or IT admins).  
+- The logger shall record the sender of a text message and the intended recipient.  
 
-- The system shall allow users to log in using a unique email and password combination  before accessing the chat system.  
-- The system shall allow users to send and receive messages in real time  
+#### 3.1.5 Authentication Module Requirements
+- A user must be authenticated before being given access to any features.  
+- A user’s authorized actions are based on their unique ID.  
 
-  3.1.1.2 The system should provide HTML-based help pages on each screen that describe the purpose of each function within the system. 
+#### 3.1.6 Notifications Module Requirements
+- The Notifications module shall notify the user when they receive a message if it is delivered asynchronously.  
 
-  2. ### **IT Module Requirements:**
+#### 3.1.7 Network/Communication Module Requirements
+- The server must be scalable to support increasing numbers of concurrent users and data without performance degradation.  
 
-     
+#### 3.1.8 Connection Manager Module Requirements
+- The module shall maintain a list of active connections.  
+- The module shall continuously update the list of active connections when a new user connects or disconnects.  
 
-     Provide module specific requirements as appropriate. 
+---
 
-     Example:
+### 3.2 External Interface Requirements
+- The system shall provide a login interface for a regular user.  
+- The system shall provide a login interface for an IT user.  
+- The system shall provide an interface for users to send and receive messages.  
+- The system shall provide an interface for IT Admins with tools to view other users’ chat logs.  
 
-     3.1.2.1 Users should be allowed to log in using their issued id and pin, both of which are alphanumeric strings between 6 and 20 characters in length. 
+---
 
-     3. ### **General User Module Requirements:**
+### 3.3 Internal Interface Requirements
+- The Chat Management module shall structure messages with metadata, and the Network module shall transmit them reliably via TCP sockets.  
+- Chat Management shall send the message to be logged by the Logger.  
+- IT Admin Tools shall request a specific log from the Logger. The Logger shall fetch the requested log and return it to IT Admin Tools.  
+- The Chat Management module shall notify the Notifications module when a new message has been received asynchronously.  
+- The Authentication module shall validate login credentials.  
+  - If login succeeds: the Chat Management module shall create a new chat session for the user.  
+  - If login fails: the user shall be denied access.  
+  
 
-     Provide module specific requirements as appropriate. 	
+# 4. Non-Functional Requirements  
 
-     Example:
+## 4.1 Security and Privacy Requirements  
+- The system shall maintain integrity ensuring logs are append-only and tamper-proof for preserving log reliability.  
+- The system shall enforce role-based access control with 100% reliability ensuring only users with IT Admin can access chats.  
+- User role and ID storage shall ensure data integrity for authorized administrators.  
 
-     3.1.2.1 Users should be allowed to log in using their issued id and pin, both of which are alphanumeric strings between 6 and 20 characters in length.
+## 4.2 Environmental Requirements (ex: hardware, software, network, physical factors)  
+- Client machine should be able to run Java SE 8 or later.  
+- Client requires organizational LAN connectivity.  
 
-     4. ### **Logger Module Requirements:**
+## 4.3 Performance Requirements  
+- The system shall achieve reliable message delivery ensuring that all messages are delivered to the intended recipient.  
+- The system shall guarantee the integrity of messages, ensuring the delivery of a complete text message without truncation.  
+- The system shall maintain persistent chat history per user, ensuring the data availability.  
+- The server hardware shall support horizontal scalability to support an increasing number of users while maintaining acceptable performance levels.  
 
-     Provide module specific requirements as appropriate. 	
-
-     Example:
-
-     3.1.2.1 Users should be allowed to log in using their issued id and pin, both of which are alphanumeric strings between 6 and 20 characters in length.
-
-     
-
-  2. ## **External Interface Requirements** {#external-interface-requirements}
-
-     Provide module specific requirements as appropriate. 
-
-     Example:
-
-     3.2.1 The system must provide an interface to the University billing system administered by the Bursar’s office so that students can be automatically billed for the courses in which they have enrolled. The interface is to be in a comma-separated text file containing the following fields: student id, course id, term id, action. Where “action” is whether the student has added or dropped the course. The file will be exported nightly and will contain new transactions only. 
-
-  3. ## **Internal Interface Requirements** {#internal-interface-requirements}
-
-     Provide module specific requirements as appropriate. 
-
-     Example:
-
-     3.3.1 The system must process a data-feed from the grading system such that student grades are stored along with the historical student course enrolments. Data feed will be in the form of a comma-separated interface file that is exported from the grading system nightly.
-
-     3.3.2 The system must process a data-feed from the University billing system that contains new student records. The feed will be in the form of a comma-separated text file and will be exported from the billing system nightly with new student records. The fields included in the file are student name, student id, and student pin number.  
-
-4. # **Non-Functional Requirements** {#non-functional-requirements}
-
-   1. ## **Security and Privacy Requirements** {#security-and-privacy-requirements}
-
-   Example:
-
-   4.1.1 The System must encrypt data being transmitted over the Internet. 
-
-   
-
-   2. ## **Environmental Requirements** {#environmental-requirements}
-
-      Example:
-
-      4.2.1 System cannot require that any software other than a web browser be installed on user computers. 
-
-      4.2.2 System must make use of the University’s existing Oracle 9i implementation for its database. 
-
-      4.2.3 System must be deployed on existing Linux-based server infrastructure. 
-
-   3. ## **Performance Requirements** {#performance-requirements}
-
-      Example:
-
-      4.3.1 System must render all UI pages in no more than 9 seconds for dynamic pages. Static pages (HTML-only) must be rendered in less than 3 seconds. 
-
-- The system must deliver a message in under 10 seconds in normal network conditions   
--    
-
-### 
 
