@@ -7,10 +7,14 @@ Revision History
 
 | Date | Revision | Description | Author |
 | :---- | :---- | :---- | :---- |
-| 09/27/2025 | 1.0 | Initial Version | Carlos M, Carlos O, Ujas, Diana |
+| 09/27/2025 | 1.0 | Initial version | Carlos M, Carlos O, Ujas, Diana |
 | 09/27/2025 | 2.0 | Overall description, Functional Requirements, Non-functional requirements | Carlos M, Carlos O, Ujas, Diana |
-| 09/28/2025 | 3.0 | revising functional requirements and non-functional requirements | Carlos M, Carlos O, Ujas, Diana |
-| 09/29/2025 | 4.0 | edited functional requirements | Carlos M, Carlos O, Ujas, Diana |
+| 09/28/2025 | 3.0 | Revised functional requirements and non-functional requirements | Carlos M, Carlos O, Ujas, Diana |
+| 09/29/2025 | 4.0 | Edited functional requirements | Carlos M, Carlos O, Ujas, Diana |
+| 09/30/2025 | 5.0 | Added references | Carlos M, Carlos O, Ujas, Diana |
+| 10/02/2025 | 6.0 | Edited formating | Carlos M, Carlos O, Ujas, Diana |
+| 10/02/2025 | 7.0 | Fixed grammar errors | Diana |
+| 10/02/2025 | 1.0 | Edited format | Carlos M |
 
 
    
