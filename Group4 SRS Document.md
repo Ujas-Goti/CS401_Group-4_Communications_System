@@ -7,7 +7,8 @@ Revision History
 
 | Date | Revision | Description | Author |
 | :---- | :---- | :---- | :---- |
-| mm/dd/yyyy | 1.0 | Initial Version | Your Name |
+| 09/27/2025 | 1.0 | Initial Version | Carlos M, Carlos O, Ujas, Diana |
+| 09/27/2025 | 2.0 | Overall description, Functional Requirements, Non-functional requirements | Carlos M, Carlos O, Ujas, Diana |
 
 
    
