@@ -86,18 +86,18 @@ Revision History
 2. ## **Overall Description** {#Overall Description}
 
 
-2.1 ## **Product Perspective** {#Product Perspective}
+	2.1 ## **Product Perspective** {#Product Perspective}
 
 This system will be a standalone Java application designed to enable secure real-time text information between users. The server application manages connections, message routing, and logging. The client application provides the user interface for messaging.
 
 
-2.2 ## **Product Architecture** {#Product Architecture}
+	2.2 ## **Product Architecture** {#Product Architecture}
 
 The system will be organized into two major sub-systems: a client side application and a server side application. 
 Server Application (back-end server): Routes all messages, manages authentication, manages client connections, manages chat history, and stores logs in text files
 Client Application (front end): Provides the user with an interface (GUI) for sending/receiving text messages. IT admin clients can request server logs from text files.
 
-2.3 ## **Product Functionality/Features** {Product Functionality/Features}
+	2.3 ## **Product Functionality/Features** {Product Functionality/Features}
 
 The high-level features of the system are as follows. See section 3 of this document for more detailed requirements that address these features. 
 
@@ -108,12 +108,24 @@ Chat log access for IT admins
 Secure Log in with username and password 
 
 
-2.4 ## **Constraints**
+	2.4 ## **Constraints**
 
 The application must run on any system with a Java runtime 
 All users must be on the same organizational local network (LAN)
 All chats must be text-based 
 Conversation and Authentication can only be store in append-only text file
+
+
+	2.5 ## **Assumptions and Dependecies**
+
+It is assumed that there is no limit to how many users are within an organization 
+It is assumed that users are on the same organizational network.
+It is assumed the server will be running before a client can connect.
+It is assumed that each user will keep their unique ID private.
+It is assumed that every user is using a Java-supported system to run the application.
+The application is dependent on text files for the storage of chat logs and user information.
+
+
 
 
 
@@ -124,83 +136,16 @@ Conversation and Authentication can only be store in append-only text file
 
      
 
-  4. ## **Overview** {#overview}
 
-     This document catalogs the user, the system, and the hardware requirements for the Communication System, without detailing the implementation. The system will function as a Java desktop client-server application using TCP/IP sockets, providing a single GUI with features such as private and group chats, notifications, admin dashboards, and conversation logs, while supporting only text-based communication.
  
 
-2. # **Overall Description** {#overall-description}
 
-   1. ## **Product Perspective** {#product-perspective}
 
-      This system will be a **standalone Java application**. The **server application** manages connections, message routing, and logging. The **client application** provides the user interface for messaging.
-
-   2. ## **Product Architecture** {#product-architecture}
-
-      The system will be organized into \_\_\_ major modules: the IT module, the \_\_\_ module, and the \_\_\_\_\_ module.
-
-      Note: System architecture should follow standard OO design practices.
-
-      The system will be organized into two major modules: a client side application and a server side application. 
-
-      **Server Application**: Routes all messages, manages client connections, and **stores logs in text files** (with format: `[timestamp] [user] [private/group] [message]`).
-
-      **Client Application**: GUI for sending/receiving messages. IT admin clients can request server logs (read from text files).
-
+   
       
 
-      **Logger Module:** 
 
-   3. ## **Product Functionality/Features** {#product-functionality/features}
-
-      The high-level features of the system are as follows (see section 3 of this document for more detailed requirements that address these features):
-
-      Private and group chat
-
-      Synchronous and asynchronous messaging
-
-      Notifications for new messages
-
-      Conversation logging (text only) 
-
-      Separate GUIs for IT and general users
-
-      
-
-   4. ## **Constraints** {#constraints}
-
-      List appropriate constraints.
-
-      Constraint example: Since users may use any web browser to access the system, no browser-specific code is to be used in the system. 
-
-      Since users will access the application through a number of different mobile phones there will be no platform- specific code. 
-
-      
-
-      Only **text messages** are supported.
-
-      No external libraries, frameworks, or databases may be used.
-
-      Application must run on any system with a Java runtime.
-
-      
-
-   5. ## **Assumptions and Dependencies** {#assumptions-and-dependencies}
-
-      List appropriate assumptions
-
-      Assumption Example: It is assumed that the maximum number of users at a given time is 15,000.
-
-      It is assumed that there is no limit to how many users can access the application   
-
-      
-
-      Users are on the same organizational network.
-
-      Server must be running before clients can connect.
-
-      Each user has a unique ID (username).
-
+   
       
 
 3. # **Specific Requirements** {#specific-requirements}
