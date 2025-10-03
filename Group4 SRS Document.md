@@ -99,11 +99,8 @@ Constraints:
 
   4. ## **Overview** {#overview}
 
-     The Mine Pump Control System (MPC), is designed to monitor and pump flood water out of mine shafts. As underground mining operations take place far below the water table, flooding into mine galleries and shafts is an ever-present danger. 
-
-     
-
-     Little 3-4 sentence overview
+     This document catalogs the user, the system, and the hardware requirements for the Communication System, without detailing the implementation. The system will function as a Java desktop client-server application using TCP/IP sockets, providing a single GUI with features such as private and group chats, notifications, admin dashboards, and conversation logs, while supporting only text-based communication.
+ 
 
 2. # **Overall Description** {#overall-description}
 
