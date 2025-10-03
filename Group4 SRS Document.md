@@ -90,7 +90,13 @@ Revision History
 
 This system will be a standalone Java application designed to enable secure real-time text information between users. The server application manages connections, message routing, and logging. The client application provides the user interface for messaging.
 
+
 2.2 ## **Product Architecture ** {#Product Architecture}
+
+The system will be organized into two major sub-systems: a client side application and a server side application. 
+Server Application (back-end server): Routes all messages, manages authentication, manages client connections, manages chat history, and stores logs in text files
+Client Application (front end): Provides the user with an interface (GUI) for sending/receiving text messages. IT admin clients can request server logs from text files.
+
 
       
 
