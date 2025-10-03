@@ -42,11 +42,12 @@ Revision History
 
 1. # **Purpose** {#purpose}
  
-   This SRS document outlines and defines the requirements of a communication system for a very large organization. The goal is to provide both synchronous(real-time) and asynchronous(delayed) chat functionalities with the support for private and group chats. IT administrators will have access to monitor all chat logs, while general users will have restricted access to their own conversations.
+   This document outlines the requirements for a Communications System for a large organization. The goal is to provide both synchronous (real-time) and asynchronous (delayed) chat functionalities with support for private and group chats. IT administrators will be able to monitor all chat logs, while general users will have restricted access to their own conversations.
+
 
    1.1 ## **Scope** {#scope}
 
-   This document will catalog the user, the system, and the hardware requirements for the communication system. It will not, however, document how these requirements will be implemented.
+  This document will catalog the user, system, and hardware requirements for the Communication system. We will not, however, document how these requirements will be implemented.
    
 
    1.2 ## **Definitions, Acronyms, Abbreviations** {#definitions,-acronyms,-abbreviations}
@@ -59,6 +60,8 @@ Revision History
 
      General User – Employee with standard chat privileges
 
+	 LAN - Local Access Network 
+
 
    1.3. ## **References** {#references}
 
@@ -67,18 +70,30 @@ Revision History
      Developing Requirements lecture slides (developing_requirements.odp)
 
    	 SRS Template.docx 
+
+	 UML Class Diagrams 
+
+	 Use Case Diagram 
+
+	 Sequence Diagram
    
-   1.4. ## **Overview** {#overview} 
+   
+   1.4. ## **Overview** {#overview}
+
+   This document catalogs the user, the system, and the hardware requirements for the Communication System, without detailing the implementation. The system will function as a Java desktop client-server application using TCP/IP sockets, providing a single GUI with features such as private and group chats, notifications, admin dashboards, and conversation logs, while supporting only text-based communication.
+
+
+2. ## **Overall Description** {#Overall Description}
+
+
+2.1 ## **Product Perspective** {#Product Perspective}
+
+This system will be a standalone Java application designed to enable secure real-time text information between users. The server application manages connections, message routing, and logging. The client application provides the user interface for messaging.
+
+2.2 ## **Product Architecture ** {#Product Architecture}
 
       
-1.1 
-      The system will operate as a Java desktop application using TCP/IP sockets for communication.
-	  Maintain conversation logs in text files with timestamos, senders unique ID, and chat type (private/group) 
-	  Provide a single GUI interface for general users and for IT administrators.
-	  Support private one-to-one chats and group conversations.
-	  Enable notifications for new messages.
-	  Enforce text-only chats
-	  Function as client-server  with a centralized server handling connections.
+
 
       
 
