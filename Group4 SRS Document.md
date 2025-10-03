@@ -55,7 +55,7 @@ Revision History
 
 ## 1.1 Scope
 
-  This document will catalog the user, system, and hardware requirements for the Communication system. We will not, however, document how these requirements will be implemented.
+  This document will catalog the user, system, and hardware requirements for the communication system. We will not, however, document how these requirements will be implemented.
    
 
 ## 1.2 Definitions, Acronyms, Abbreviations
@@ -75,7 +75,7 @@ Revision History
 
      Group project descriptions slide (08282025.odp) pg.12
 
-     Developing Requirements lecture slides (developing_requirements.odp)
+     Developing Requirements lecture slides  (developing_requirements.odp)
 
    	 SRS Template.docx 
 
@@ -88,7 +88,8 @@ Revision History
    
    ## 1.4 Overview
 
-This document catalogs the user, the system, and the hardware requirements for the Communication System, without detailing the implementation. The system will function as a Java desktop client-server application using TCP/IP sockets, providing a single GUI with features such as private and group chats, notifications, admin dashboards, and conversation logs, while supporting only text-based communication.
+This document catalogs the user, the system, and the hardware requirements for the Communication System, without detailing the implementation. 
+The system will function as a Java desktop client-server application using TCP/IP sockets, providing a single GUI with features such as private and group chats, notifications, admin dashboards, and conversation logs, while supporting text-based communication.
 
 
 # 2. Overall Description
@@ -96,42 +97,46 @@ This document catalogs the user, the system, and the hardware requirements for t
 
 ## 2.1 Product Perspective
 
-This system will be a standalone Java application designed to enable secure real-time text information between users. The server application manages connections, message routing, and logging. The client application provides the user interface for messaging.
+This system will be a standalone Java application designed to enable secure real-time text information between users. 
+The server application manages connections, message routing, and logging. 
+The client application provides the user interface for messaging.
 
 
 ## 2.2 Product Architecture
 
-The system will be organized into two major sub-systems: a client side application and a server side application. 
-Server Application (back-end server): Routes all messages, manages authentication, manages client connections, manages chat history, and stores logs in text files
-Client Application (front end): Provides the user with an interface (GUI) for sending/receiving text messages. IT admin clients can request server logs from text files.
+- The system will be organized into two major sub-systems: a client side application and a server side application. 
+- Server Application (back-end server): Routes all messages, manages authentication, manages client connections, manages chat history, and stores logs in text files
+- Client Application (front end): Provides the user with an interface (GUI) for sending/receiving text messages.
+- IT admin clients can request server logs from text files.
 
 ## 2.3 Product Functionality/Features
 
-The high-level features of the system are as follows. See section 3 of this document for more detailed requirements that address these features. 
+The high-level features of the system are as follows. 
+See section 3 of this document for more detailed requirements that address these features. 
 
-Private and group chats 
-Synchronous and asynchronous messaging 
-Notifications for new messages 
-Chat log access for IT admins 
-Secure Log in with username and password 
+- Private and group chats 
+- Synchronous and asynchronous messaging 
+- Notifications for new messages 
+- Chat log access for IT admins 
+- Secure Log in with username and password 
 
 
 ## 2.4 Constraints
 
-The application must run on any system with a Java runtime 
-All users must be on the same organizational local network (LAN)
-All chats must be text-based 
-Conversation and Authentication can only be store in append-only text file
+- The application must run on any system with a Java runtime 
+- All users must be on the same organizational local network (LAN)
+- All chats must be text-based 
+- Conversation and Authentication can only be store in append-only text file
 
 
 ## 2.5 Assumptions and Dependecies
 
-It is assumed that there is no limit to how many users are within an organization 
-It is assumed that users are on the same organizational network.
-It is assumed the server will be running before a client can connect.
-It is assumed that each user will keep their unique ID private.
-It is assumed that every user is using a Java-supported system to run the application.
-The application is dependent on text files for the storage of chat logs and user information.
+- It is assumed that there is no limit to how many users are within an organization 
+- It is assumed that users are on the same organizational network.
+- It is assumed the server will be running before a client can connect.
+- It is assumed that each user will keep their unique ID private.
+- It is assumed that every user is using a Java-supported system to run the application.
+- The application is dependent on text files for the storage of chat logs and user information.
 
 
 
