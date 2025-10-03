@@ -40,12 +40,13 @@ Revision History
 4.2.	Environmental Requirements	[8](#environmental-requirements)  
 4.3.	Performance Requirements	[8](#performance-requirements)
 
-1. # Purpose 
+
+#1. Purpose 
  
    This document outlines the requirements for a Communications System for a large organization. The goal is to provide both synchronous (real-time) and asynchronous (delayed) chat functionalities with support for private and group chats. IT administrators will be able to monitor all chat logs, while general users will have restricted access to their own conversations.
 
 
-   1.1 ## **Scope** {#scope}
+   ##1.1 Scope
 
   This document will catalog the user, system, and hardware requirements for the Communication system. We will not, however, document how these requirements will be implemented.
    
