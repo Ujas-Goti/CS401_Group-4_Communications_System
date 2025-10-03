@@ -46,12 +46,12 @@ Revision History
    This document outlines the requirements for a Communications System for a large organization. The goal is to provide both synchronous (real-time) and asynchronous (delayed) chat functionalities with support for private and group chats. IT administrators will be able to monitor all chat logs, while general users will have restricted access to their own conversations.
 
 
-   ## 1.1 Scope
+## 1.1 Scope
 
   This document will catalog the user, system, and hardware requirements for the Communication system. We will not, however, document how these requirements will be implemented.
    
 
-	## 1.2 Definitions, Acronyms, Abbreviations
+## 1.2 Definitions, Acronyms, Abbreviations
 
      GUI – Graphical User Interface
 
@@ -64,7 +64,7 @@ Revision History
 	 LAN - Local Access Network 
 
 
-   1.3. ## **References** {#references}
+## 1.3 Refrences 
 
      Group project descriptions slide (08282025.odp) pg.12
 
@@ -79,15 +79,15 @@ Revision History
 	 Sequence Diagram
    
    
-   1.4. ## **Overview** {#overview}
+   ## 1.4 Overview
 
    This document catalogs the user, the system, and the hardware requirements for the Communication System, without detailing the implementation. The system will function as a Java desktop client-server application using TCP/IP sockets, providing a single GUI with features such as private and group chats, notifications, admin dashboards, and conversation logs, while supporting only text-based communication.
 
 
-2. ## **Overall Description** {#Overall Description}
+# 2. Overall Description
 
 
-	2.1 ## **Product Perspective** {#Product Perspective}
+## 2.1 Product Perspective
 
 This system will be a standalone Java application designed to enable secure real-time text information between users. The server application manages connections, message routing, and logging. The client application provides the user interface for messaging.
 
