@@ -41,17 +41,17 @@ Revision History
 4.3.	Performance Requirements	[8](#performance-requirements)
 
 
-#1. Purpose 
+# 1. Purpose 
  
    This document outlines the requirements for a Communications System for a large organization. The goal is to provide both synchronous (real-time) and asynchronous (delayed) chat functionalities with support for private and group chats. IT administrators will be able to monitor all chat logs, while general users will have restricted access to their own conversations.
 
 
-   ##1.1 Scope
+   ## 1.1 Scope
 
   This document will catalog the user, system, and hardware requirements for the Communication system. We will not, however, document how these requirements will be implemented.
    
 
-   1.2 ## **Definitions, Acronyms, Abbreviations** {#definitions,-acronyms,-abbreviations}
+	## 1.2 Definitions, Acronyms, Abbreviations
 
      GUI – Graphical User Interface
 
