@@ -12,7 +12,7 @@ Revision History
 | 09/28/2025 | 3.0 | Revised functional requirements and non-functional requirements | Carlos M, Carlos O, Ujas, Diana |
 | 09/29/2025 | 4.0 | Edited functional requirements | Carlos M, Carlos O, Ujas, Diana |
 | 09/30/2025 | 5.0 | Added references | Carlos M, Carlos O, Ujas, Diana |
-| 10/02/2025 | 6.0 | Edited formating | Carlos M, Carlos O, Ujas, Diana |
+| 10/02/2025 | 6.0 | Revised assumptions and dependecies | Carlos M, Carlos O, Ujas, Diana |
 | 10/02/2025 | 7.0 | Fixed grammar errors | Diana |
 | 10/02/2025 | 8.0 | Edited format | Carlos M |
 
