@@ -148,41 +148,41 @@ The application is dependent on text files for the storage of chat logs and user
    
       
 
-## 3. Specific Requirements
+# 3. Specific Requirements
 
-### 3.1 Functional Requirements
+## 3.1 Functional Requirements
 
-#### 3.1.1 Common Requirements
+### 3.1.1 Common Requirements
 - Users must log in with a unique username and secure password.  
 - Users can send and receive private messages and group messages.  
 - Users receive notifications for new messages.  
 - Messages must be logged in text files (append-only).  
 
-#### 3.1.2 IT Admin Module Requirements
+### 3.1.2 IT Admin Module Requirements
 - IT admins shall be able to view chat logs in real-time sessions.  
 - IT admins shall be able to search through the chat logs based on a unique userID and/or a unique groupID.  
 
-#### 3.1.3 Chat Management Module Requirements
+### 3.1.3 Chat Management Module Requirements
 - Chat management shall be able to send text messages instantly in a group chat or a private chat.  
 - Chat management shall generate a unique chat ID for every chat that gets created.  
 - Chat management shall load old chat logs and update them with new messages.  
 
-#### 3.1.4 Logger Module Requirements
+### 3.1.4 Logger Module Requirements
 - The logger shall include a timestamp for all recorded logs.  
 - The logger shall record when chats are created (private or group) and list participants (regular users or IT admins).  
 - The logger shall record the sender of a text message and the intended recipient.  
 
-#### 3.1.5 Authentication Module Requirements
+### 3.1.5 Authentication Module Requirements
 - A user must be authenticated before being given access to any features.  
 - A user’s authorized actions are based on their unique ID.  
 
-#### 3.1.6 Notifications Module Requirements
+### 3.1.6 Notifications Module Requirements
 - The Notifications module shall notify the user when they receive a message if it is delivered asynchronously.  
 
-#### 3.1.7 Network/Communication Module Requirements
+### 3.1.7 Network/Communication Module Requirements
 - The server must be scalable to support increasing numbers of concurrent users and data without performance degradation.  
 
-#### 3.1.8 Connection Manager Module Requirements
+### 3.1.8 Connection Manager Module Requirements
 - The module shall maintain a list of active connections.  
 - The module shall continuously update the list of active connections when a new user connects or disconnects.  
 
