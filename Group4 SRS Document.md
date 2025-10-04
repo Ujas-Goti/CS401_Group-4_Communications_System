@@ -13,8 +13,7 @@ Revision History
 | 09/29/2025 | 4.0 | Edited functional requirements | Carlos M, Carlos O, Ujas, Diana |
 | 09/30/2025 | 5.0 | Added references | Carlos M, Carlos O, Ujas, Diana |
 | 10/02/2025 | 6.0 | Revised assumptions and dependecies | Carlos M, Carlos O, Ujas, Diana |
-| 10/02/2025 | 7.0 | Fixed grammar errors | Diana |
-| 10/02/2025 | 8.0 | Edited format | Carlos M |
+| 10/02/2025 | 7.0 | Edited Format | Diana, Carlos M |
 
 
    
@@ -215,8 +214,8 @@ See section 3 of this document for more detailed requirements that address these
 - IT Admin Tools shall request a specific log from the Logger. The Logger shall fetch the requested log and return it to IT Admin Tools.  
 - The Chat Management module shall notify the Notifications module when a new message has been received asynchronously.  
 - The Authentication module shall validate login credentials.  
-  - If login succeeds: the Chat Management module shall create a new chat session for the user.  
-  - If login fails: the user shall be denied access.  
+- If login succeeds: the Chat Management module shall create a new chat session for the user.  
+- If login fails: the user shall be denied access.  
   
 
 # 4. Non-Functional Requirements  
