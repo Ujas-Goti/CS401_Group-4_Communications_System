@@ -42,7 +42,6 @@ Users can communicate through **private one-to-one conversations** or **group ch
 ## Project Constraints
 - **Text based chats only**
 - **Users must be within the same organization's local network in order to chat**
-- **Messages must be delivered in under 5 seconds**
 - **Conversations and Authentication information can only be stored in append-only text files**
 
    
