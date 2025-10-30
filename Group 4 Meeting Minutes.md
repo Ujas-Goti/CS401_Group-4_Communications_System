@@ -36,32 +36,39 @@
 **10/02/25**
 -- **Attendees:** Carlos M, Diana
 - 7:30 pm \- 11:00pm
--  Two team members met to discuss any changes needed to be made, from professor Smith's feedback 
+-  Team members, Carlos M and Diana, met to discuss the changes needed using professor Smith's feedback 
 -  The methods in the connectionManager class were updated
 -  A gnatt chart was created, detailing the full schedule of the project
 -  The SRS on github was updated, each of the two members taking turns making commits
 -  Top requirements were edited from the google slides presentation
 -  The updated classes were taken from 'Lucid.app' and pasted on to the presentation slides
 
+**10/10/25**
+-- **Attendees:** Carlos M, Diana, Ujas, Carlos O   
+- 7:45pm \- 8:25pm
+- The team explored diffrent gantt templates, "Atlassian", "GanntPro", "Canva" and "Microsoft Excel" were top candidates
+- The team hit a roadblock, team member Ujas ran out of free associates lines in lucidChart app   
+
 
 **10/22/25**
 -- **Attendees:** Carlos M, Diana, Ujas, Carlos O
 - 8:00pm \- 9:00pm 
 - The associations between the class' in the Class Diagrams was revised 
-- The team decided there will be no notifications class   
-- The team begun a conversation exaplaining the diffrence between "Composition" vs "Aggregation"
+- The team agreed there should be no notifications class due to time constraints   
+- The team held a conversation explaining the diffrence between "Composition" vs "Aggregation"
 
 **10/27/25**
 -- **Attendees:** Carlos M, Diana, Ujas, Carlos O   
 - 6:00pm \- 8:25pm
 - Members finalized the server class. Adding the Authentication, ConnectionManager, ChatManager, and userSession
-- The ConnectionManager was changed to include the server, the UserSession, and the ChatManager
+- The ConnectionManager class now included the server, the UserSession, and the ChatManager
+- A refrence from a google image gantt chart was sent over discord 
 
 
 **10/29/25**
 -- **Attendees:** Carlos M, Diana, Ujas, Carlos O
 - 4:00pm \-  
-- Phase 2 presentation slides was created and finalized using google slides
+- Phase 2 presentation slides was created using google slides
 - The Use Case Diagram was modified using a new app "Lucid App"
 - Group members added a new class named "AuthGui" to the class diagram
 - A new association was created, the "AuthGui" with "authentication" class and "clientGui" class 
