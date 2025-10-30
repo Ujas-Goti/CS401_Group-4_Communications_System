@@ -45,27 +45,28 @@
 
 
 **10/22/25**
-8:00 pm \- 9:00 pm 
 -- **Attendees:** Carlos M, Diana, Ujas, Carlos O
+- 8:00pm \- 9:00pm 
 - The associations between the class' in the Class Diagrams was revised 
 - The team decided there will be no notifications class   
 - The team begun a conversation exaplaining the diffrence between "Composition" vs "Aggregation"
 
-
 **10/27/25**
-- 6:00 pm \- 8:25 pm
--- **Attendees:** Carlos M, Diana, Ujas, Carlos O
-  
-  
+-- **Attendees:** Carlos M, Diana, Ujas, Carlos O   
+- 6:00pm \- 8:25pm
+- Members finalized the server class. Adding the Authentication, ConnectionManager, ChatManager, and userSession
+- The ConnectionManager was changed to include the server, the UserSession, and the ChatManager
 
 
 **10/29/25**
 -- **Attendees:** Carlos M, Diana, Ujas, Carlos O
-- 4:00 pm \- 9:00 pm 
+- 4:00pm \-  
 - Phase 2 presentation slides was created and finalized using google slides
 - The Use Case Diagram was modified using a new app "Lucid App"
 - Group members added a new class named "AuthGui" to the class diagram
--  
+- A new association was created, the "AuthGui" with "authentication" class and "clientGui" class 
+
+ 
  
 
 
