@@ -61,7 +61,7 @@
 -- **Attendees:** Carlos M, Diana, Ujas, Carlos O   
 - 6:00pm \- 8:25pm
 - Members finalized the server class. Adding the Authentication, ConnectionManager, ChatManager, and userSession
-- The ConnectionManager class now included the server, the UserSession, and the ChatManager
+- The ConnectionManager class now includes the server, the UserSession, and the ChatManager
 - A refrence from a google image gantt chart was sent over discord 
 
 
