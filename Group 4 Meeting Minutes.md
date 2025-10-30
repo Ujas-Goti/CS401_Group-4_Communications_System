@@ -21,7 +21,7 @@
 
 **9/29/25**
 -- **Attendees:** Carlos M, Diana, Ujas, Carlos O  
-- 3pm \ - 7:00pm   
+- 3pm \- 7:00pm   
 - Ujas and Carlos M (9:00pm \- 12:00am)   
 - Diana (10:30pm \- 12:00am)      
 - Spent 1.5 hours working on 10 presentation slides    
