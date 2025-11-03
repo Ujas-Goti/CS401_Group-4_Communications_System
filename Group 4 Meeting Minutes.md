@@ -67,7 +67,7 @@
 
 **10/29/25**
 -- **Attendees:** Carlos M, Diana, Ujas, Carlos O
-- 4:00pm \-  
+- 4:00pm \- 11:00pm 
 - Phase 2 presentation slides was created using google slides
 - The Use Case Diagram was modified using a new app "Lucid App"
 - Group members added a new class named "AuthGui" to the class diagram
