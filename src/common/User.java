@@ -4,7 +4,7 @@ public class User {
 	private String username;
 	private String password;
 	private UserRole role;
-	private OnlineStatus status = OnlineStatus.OFFLINE; // I think the default status for OnlineStatus should be OFFLINE. (Carlos)
+	private OnlineStatus status = OnlineStatus.OFFLINE; // I think the default status for OnlineStatus should be OFFLINE. (Carlos O)
 	
 	public User(String username, String password, UserRole role) {
 		this.username = username;
