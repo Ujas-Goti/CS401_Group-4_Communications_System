@@ -108,7 +108,7 @@ public class Logger {
                 if (parts[0].equals(userID)) {
                     String username = parts[0];
                     String password = parts[1];
-                    User.UserRole role = User.UserRole.valueOf(parts[2].toUpperCase());
+                    UserRole role = UserRole.valueOf(parts[2].toUpperCase());
                     
                     return new User(username, password, role);		// now updated to match new main User constructor (username, password, role)
                 }
