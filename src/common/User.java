@@ -1,3 +1,4 @@
+import java.util.Objects;
 
 public class User {
 	private String userID;
@@ -44,5 +45,21 @@ public class User {
     @Override
     public String toString() {
         return username;
+       
     }
+    
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User other = (User) o;
+        return this.userID.equals(other.userID);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userID);
+    }
+    
 }
