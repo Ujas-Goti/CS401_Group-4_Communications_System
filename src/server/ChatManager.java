@@ -22,16 +22,18 @@ public class ChatManager {
     
     
     //	creates a new chat session
-    public synchronized ChatSession createSession(List<User> participants, boolean isGroup) {
+    public synchronized ChatSession createSession(List<User> participants, boolean isGroup, String chatName) {
         if (participants == null || participants.isEmpty()) {
             throw new IllegalArgumentException("Participants list cannot be empty");
         }
 
-        ChatSession session = new ChatSession(participants, isGroup, "");
-        activeChatSessions.put(session.getChatId(), session);
+        ChatSession session = new ChatSession(participants, isGroup, chatName);
+        activeChatSessions.put(session.getChatID(), session);
 
         //	initializes active viewers list. starts empty
-        activeViewers.put(session.getChatId(), ConcurrentHashMap.newKeySet());
+        activeViewers.put(session.getChatID(), ConcurrentHashMap.newKeySet());
+        
+        logger.logSession(session);
 
         return session;
     }
@@ -39,6 +41,8 @@ public class ChatManager {
  
     //	ClientHandler calls this when a user opens a chat window in ClientGUI
     public void joinSession(String chatID, User user) {
+    	if (chatID == null || user == null) return;
+    	
         Set<User> viewers = activeViewers.get(chatID);
 
         // if there doesn't exist a set of viewers for this chatID, then starts one
@@ -55,6 +59,7 @@ public class ChatManager {
     
     //	ClientHandler calls this when a user closes a chat window in ClientGUI
     public void leaveSession(String chatID, User user) {
+    	if (chatID == null || user == null) return;
         Set<User> viewers = activeViewers.get(chatID);
         if (viewers != null) {
             viewers.remove(user);
@@ -132,12 +137,17 @@ public class ChatManager {
     //	loads all the chatSessions a single user is a part of
     //	this is used when loading the client's list of chats
     public List<ChatSession> loadUserSessions(User user) {
+    	if (user == null) return Collections.emptyList();
+    	
         List<ChatSession> userSessions = new ArrayList<>();
 
         // get sessions already in memory
         for (ChatSession session : activeChatSessions.values()) {
-            if (session.getParticipants().stream().anyMatch(u -> u.getUserID().equals(user.getUserID()))) {
-                userSessions.add(session);
+            for (User u : session.getParticipants()) {
+                if (u.getUserID().equals(user.getUserID())) {
+                    userSessions.add(session);
+                    break;
+                }
             }
         }
 
@@ -152,17 +162,19 @@ public class ChatManager {
 
             // load participants
             List<User> participants = new ArrayList<>();
-            for (String uid : parts[2].split(",")) {
+            String[] uids = parts[2].split(",");
+            for (String uid : uids) {
                 User u = logger.loadUserByID(uid);
                 if (u != null) participants.add(u);
             }
 
             // create session and add to memory & result
             if (participants.size() >= 2) {
-                ChatSession session = new ChatSession(participants.get(0), participants.get(1));
-                for (int i = 2; i < participants.size(); i++) session.addParticipant(participants.get(i));
-
+                // create session preserving the chatID from file
+            	boolean isGroup = Boolean.parseBoolean(parts[1]);
+            	ChatSession session = new ChatSession(chatID, participants, isGroup, null);
                 activeChatSessions.put(chatID, session);
+                activeViewers.putIfAbsent(chatID, ConcurrentHashMap.newKeySet());
                 userSessions.add(session);
             }
         }

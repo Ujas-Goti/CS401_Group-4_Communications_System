@@ -3,6 +3,8 @@ import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Logger {
 
@@ -46,12 +48,12 @@ public class Logger {
                 if (!parts[1].equals(chatID)) continue;
 
                 String messageID = parts[0];
-                String chatID = parts[1];
+                String msgchatID = parts[1];
                 String senderID = parts[2];
                 LocalDateTime timestamp = LocalDateTime.parse(parts[3]);
                 String content = parts[4];
 
-                Message msg = new Message(chatID, senderID, content);
+                Message msg = new Message(messageID, msgchatID, senderID, timestamp, content);
                 messages.add(msg);
             }
         } catch (IOException e) {
@@ -102,12 +104,13 @@ public class Logger {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length < 4) continue;
+                if (parts.length < 3) continue;
                 if (parts[0].equals(userID)) {
-                    String username = parts[1];
-                    String password = parts[2];
-                    User.UserRole role = User.UserRole.valueOf(parts[3].toUpperCase());
-                    return new User(userID, username, password, role);
+                    String username = parts[0];
+                    String password = parts[1];
+                    User.UserRole role = User.UserRole.valueOf(parts[2].toUpperCase());
+                    
+                    return new User(username, password, role);		// now updated to match new main User constructor (username, password, role)
                 }
             }
         } catch (IOException e) {
