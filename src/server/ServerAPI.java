@@ -1,4 +1,4 @@
-
+package server;
 public class ServerAPI {
 	private Logger logger;
 	// Chat manager

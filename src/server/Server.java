@@ -1,3 +1,4 @@
+package server;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -8,6 +9,7 @@ import java.net.Socket;
 // Basic multi-threaded server that handles multiple clients.
 // Each client gets its own thread so several users can connect at the same time.
 public class Server {
+	private Authentication auth;
 
     public static void main(String[] arguments) {
 
@@ -27,14 +29,22 @@ public class Server {
         try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
             serverSocket.setReuseAddress(true);
             System.out.println("Server started on port: " + portNumber);
+            
+            // For each client, the handler should also have a authentication object to authenticate
+            // each user
+            Authentication auth = new Authentication("credentialFile.txt");
 
             // This loop waits forever for new clients to connect.
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("New client connected: " + clientSocket.getRemoteSocketAddress());
-
+                
+                // Thread cannot take the auth object so we pass it into the client handler constructor
+                // instead and pass the handler to the thread that was created.
+                ClientHandler handler = new ClientHandler(clientSocket, auth);
+                
                 // Give this client its own thread
-                Thread clientThread = new Thread(new ClientHandler(clientSocket));
+                Thread clientThread = new Thread(handler);
                 clientThread.start();
             }
 
