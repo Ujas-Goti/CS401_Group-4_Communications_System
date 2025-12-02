@@ -1,3 +1,4 @@
+<<<<<<< Current (Your changes)
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -102,3 +103,5 @@ public class Notification {
         }
     }
 }
+=======
+>>>>>>> Incoming (Background Agent changes)

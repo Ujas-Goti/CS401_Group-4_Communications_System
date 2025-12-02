@@ -1,3 +1,4 @@
+<<<<<<< Current (Your changes)
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -78,3 +79,5 @@ public class ChatSession {
         return isGroup;
     }
 }
+=======
+>>>>>>> Incoming (Background Agent changes)
