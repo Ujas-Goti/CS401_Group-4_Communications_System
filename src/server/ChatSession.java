@@ -2,8 +2,9 @@ package server;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.io.Serializable;
 
-public class ChatSession {
+public class ChatSession implements Serializable {
 	
 	private String chatID;
 	private String chatName;
