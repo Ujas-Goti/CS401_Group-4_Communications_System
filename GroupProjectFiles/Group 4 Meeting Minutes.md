@@ -88,15 +88,23 @@
 
 **11/22/25**
 -- **Attendees:** Carlos M, Carlos O, Diana 
+- The group did demonstrations and explanations of working collaboratively on github 
 - Created a logger class
 - Discussed the pushing of the logger class to github
+- Each member cloned the full repository from github to their local machines  
 
 **11/30/25**
 -- **Attendees:** Carlos M, Carlos O, Diana, Ujas
 - 9:00am \- 3:15pm
-- 4:00pm \- 9:15pm
-- Ujas Commited the connection manager
-- Made a demo version of client GUI with dummy data and dummy classes  
+- Team member Ujas Commited the connection manager
+- Made a demo version of client GUI with dummy data and dummy classes
+
+**12/01/25**
+-- **Attendees:** Carlos M, Carlos O, Diana, Ujas
+- 9:00am \- 9:00pm
+- Group members reviewed and accepted pull requests
+- Pushed the Authentication class, ChatManager class, ChatSession class, Connection class, Logger Class, Server Class, and userSession class
+- Pulled the server side into our main branch on github   
    
 
   
