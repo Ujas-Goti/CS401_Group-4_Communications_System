@@ -220,13 +220,46 @@ public class Server {
 
             // Add message to chat session
             List<User> targets = chatManager.receiveMessage(message);
+            
+            // Get the chat session to check if it's a group
+            ChatSession session = chatManager.getChatSession(message.getChatID());
+            boolean isGroup = session != null && session.isGroup();
 
-            // Send message to all online participants who are viewing the chat
+            // For group chats, send to ALL online participants (not just active viewers)
+            if (isGroup && session != null) {
+                List<User> allParticipants = session.getParticipants();
+                Set<String> targetUserIDs = new java.util.HashSet<>();
+                for (User target : targets) {
+                    targetUserIDs.add(target.getUserID());
+                }
+                
+                // Add all online participants who aren't the sender
+                for (User participant : allParticipants) {
+                    if (!participant.getUserID().equals(message.getSenderID())) {
+                        // Check if participant is online
+                        if (onlineUsers.containsKey(participant.getUserID())) {
+                            // Use the online user object (has correct status)
+                            User onlineParticipant = onlineUsers.get(participant.getUserID());
+                            if (!targetUserIDs.contains(onlineParticipant.getUserID())) {
+                                targets.add(onlineParticipant);
+                                targetUserIDs.add(onlineParticipant.getUserID());
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Send message to all targets
             for (User target : targets) {
                 ObjectOutputStream targetOut = (ObjectOutputStream) connectionManager.getOutputStream(target);
                 if (targetOut != null) {
-                    targetOut.writeObject(message);
-                    targetOut.flush();
+                    try {
+                        targetOut.writeObject(message);
+                        targetOut.flush();
+                    } catch (IOException e) {
+                        // User may have disconnected
+                        System.err.println("Failed to send message to " + target.getUserID() + ": " + e.getMessage());
+                    }
                 }
             }
 

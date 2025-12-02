@@ -92,33 +92,49 @@ public class ChatManager {
         // log to file
         logger.logMessage(msg);
 
-        // get all users currently viewing this chat window
-        Set<User> active = activeViewers.getOrDefault(msg.getChatID(), Collections.emptySet());
-
+        // For group chats, send to all online participants
+        // For private chats, send to the other participant if they're viewing
         List<User> targets = new ArrayList<>();
-
-        // loop through each active viewer
-        for (User viewer : active) {
-
-            // skip the sender
-            if (viewer.getUserID().equals(msg.getSenderID())) {
-                continue;
-            }
-
-            // check if this viewer is actually part of the chat
-            boolean isParticipant = false;
-            for (User p : session.getParticipants()) {
-                if (p.getUserID().equals(viewer.getUserID())) {
-                    isParticipant = true;
-                    break;
+        
+        if (session.isGroup()) {
+            // Group chat: send to all participants (they'll see it when they open the chat)
+            // But we need to get online users from the server
+            // For now, send to all active viewers who are participants
+            Set<User> active = activeViewers.getOrDefault(msg.getChatID(), Collections.emptySet());
+            
+            // Add all participants who are active viewers (have chat open)
+            for (User viewer : active) {
+                if (!viewer.getUserID().equals(msg.getSenderID())) {
+                    // Verify they're a participant
+                    for (User p : session.getParticipants()) {
+                        if (p.getUserID().equals(viewer.getUserID())) {
+                            targets.add(viewer);
+                            break;
+                        }
+                    }
                 }
             }
-
-            // only send if they are part of the chat
-            if (isParticipant) {
-                targets.add(viewer);
+            
+            // Also add participants who might not have the chat open yet
+            // We'll need to check if they're online via ConnectionManager
+            // For now, this is handled by the fact that when they open the chat,
+            // they'll load the history
+        } else {
+            // Private chat: only send to the other participant if they're viewing
+            Set<User> active = activeViewers.getOrDefault(msg.getChatID(), Collections.emptySet());
+            for (User viewer : active) {
+                if (!viewer.getUserID().equals(msg.getSenderID())) {
+                    // Verify they're a participant
+                    for (User p : session.getParticipants()) {
+                        if (p.getUserID().equals(viewer.getUserID())) {
+                            targets.add(viewer);
+                            break;
+                        }
+                    }
+                }
             }
         }
+        
         return targets;
     }
 
