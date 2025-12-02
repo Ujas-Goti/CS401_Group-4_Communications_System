@@ -82,7 +82,25 @@
 **11/14/25**
 -- **Attendees:** Carlos M, Carlos O
 - 2:00pm \- 3:15pm
-- Met to discuss the GUI          
+- Met to discuss the timeline for the server side
+- Met to discuss the timeline for the client side
+-  A pull request was made for the authentication class and user session class
+
+**11/22/25**
+-- **Attendees:** Carlos M, Carlos O, Diana 
+- Created a logger class
+- Discussed the pushing of the logger class to github
+
+- **11/30/25**
+-- **Attendees:** Carlos M, Carlos O, Diana, Ujas
+  
+- Ujas Commited the connection manager
+- 9:00am \- 3:15pm
+- 4:00pm \- 9:15pm
+- Made a demo version of client GUI with dummy data and dummy classes  
+   
+
+  
 
 
 
