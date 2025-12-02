@@ -130,7 +130,10 @@ public class ChatManager {
     //	loads message history for a single chatSession from LogFile
     //	this gets called when user opens chat window for first time
     public List<Message> loadHistory(String chatID) {
-        return logger.getMessagesForChat(chatID);
+    	List<Message> history = logger.getMessagesForChat(chatID);
+    	ChatSession session = getChatSession(chatID);
+    	session.getMessages().addAll(history);
+        return history;
     }
 
     
