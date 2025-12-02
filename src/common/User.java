@@ -1,3 +1,6 @@
+package common;
+
+import java.io.Serializable;
 import java.util.Objects;
 import java.io.Serializable;
 

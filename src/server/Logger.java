@@ -1,26 +1,31 @@
 package server;
+<<<<<<< HEAD
+=======
+
+>>>>>>> cb168d1 (Pushed all latest changes)
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.List;
+import common.User;
+import common.Message;
+import common.UserRole;
 
 public class Logger {
 
     private final String logFile;
-    private final String sessionsFile;
     private final String credentialsFile;
 
-    public Logger(String logFile, String sessionsFile, String credentialsFile) {
+    public Logger(String logFile, String credentialsFile) {
         this.logFile = logFile;
-        this.sessionsFile = sessionsFile;
         this.credentialsFile = credentialsFile;
     }
 
-    // log a message in logFile
+    // log a message in logFile with MESSAGE| prefix
     public synchronized void logMessage(Message message) {
-        String line = String.format("%s|%s|%s|%s|%s",
+        String line = String.format("MESSAGE|%s|%s|%s|%s|%s",
                 message.getMessageID(),
                 message.getChatID(),
                 message.getSenderID(),
@@ -36,14 +41,16 @@ public class Logger {
     }
 
     
-    // read all messages for a chat
+    // read all messages for a chat (filter by MESSAGE| prefix)
     public synchronized List<Message> getMessagesForChat(String chatID) {
         List<Message> messages = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {
             String line;
             
             while ((line = br.readLine()) != null) {
-                String[] parts = line.split("\\|");
+                if (!line.startsWith("MESSAGE|")) continue;
+                
+                String[] parts = line.substring(8).split("\\|");
                 if (parts.length < 5) continue;
                 if (!parts[1].equals(chatID)) continue;
 
@@ -51,7 +58,7 @@ public class Logger {
                 String msgchatID = parts[1];
                 String senderID = parts[2];
                 LocalDateTime timestamp = LocalDateTime.parse(parts[3]);
-                String content = parts[4];
+                String content = parts[4].replace("/", "|");
 
                 Message msg = new Message(messageID, msgchatID, senderID, timestamp, content);
                 messages.add(msg);
@@ -62,24 +69,34 @@ public class Logger {
         return messages;
     }
 
-    // log a chat session in sessionsFile
+    // log a chat session in logFile with SESSION| prefix
     public synchronized void logSession(ChatSession session) {
         String participants = session.getParticipants().stream().map(User::getUserID).collect(Collectors.joining(","));
-        String line = String.format("%s|%b|%s", session.getChatID(), session.isGroup(), participants);
+        String chatName = session.getChatName() != null ? session.getChatName() : "";
+        String line = String.format("SESSION|%s|%s|%b|%s|%s",
+                session.getChatID(),
+                LocalDateTime.now().toString(),
+                session.isGroup(),
+                participants,
+                chatName);
 
-        try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(sessionsFile, true)))) {
+        try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(logFile, true)))) {
             out.println(line);
         } catch (IOException e) {
             System.err.println("ERROR writing session log: " + e.getMessage());
         }
     }
 
-    // read all chat sessions from file
+    // read all chat sessions from file (filter by SESSION| prefix)
     public synchronized List<String> readAllSessions() {
         List<String> lines = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(sessionsFile))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {
             String line;
-            while ((line = br.readLine()) != null) lines.add(line);
+            while ((line = br.readLine()) != null) {
+                if (line.startsWith("SESSION|")) {
+                    lines.add(line.substring(8));
+                }
+            }
         } catch (IOException e) {
             System.err.println("ERROR reading sessions log: " + e.getMessage());
         }
@@ -91,8 +108,8 @@ public class Logger {
     public synchronized List<String> filterSessionsByUser(String userID) {
         return readAllSessions().stream().filter(line -> {
             String[] parts = line.split("\\|");
-            if (parts.length < 3) return false;
-            String[] users = parts[2].split(",");
+            if (parts.length < 4) return false;
+            String[] users = parts[3].split(",");
             for (String u : users) if (u.equals(userID)) return true;
             return false;
         }).collect(Collectors.toList());

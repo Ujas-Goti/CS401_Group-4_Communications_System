@@ -1,5 +1,7 @@
-<<<<<<< Current (Your changes)
+package client;
+
 import javax.swing.BorderFactory;
+import common.User;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -17,11 +19,17 @@ public class Notification {
     private final String messageID;
     private final User recipient;
     private boolean delivered;
+    private String senderName;
 
     public Notification(String messageID, User recipient) {
         this.messageID = messageID;
         this.recipient = recipient;
         this.delivered = false;
+        this.senderName = "Someone";
+    }
+    
+    public void setSenderName(String senderName) {
+        this.senderName = senderName != null ? senderName : "Someone";
     }
 
     public void triggerNotification() {
@@ -93,8 +101,7 @@ public class Notification {
     }
 
     private String getSenderName() {
-        // TODO integrate with ChatManager/Message to resolve real sender
-        return "Someone";
+        return senderName;
     }
 
     public void triggerSystemTrayNotification() {
@@ -103,5 +110,3 @@ public class Notification {
         }
     }
 }
-=======
->>>>>>> Incoming (Background Agent changes)
