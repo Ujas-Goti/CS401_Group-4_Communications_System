@@ -1,3 +1,5 @@
+package server;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import common.User;
+import common.OnlineStatus;
 
 public class ConnectionManager {
     private final ExecutorService threadPool;
@@ -38,6 +42,20 @@ public class ConnectionManager {
         String key = userKey(user);
         disconnectClient(user);
         threadPool.submit(() -> initializeClient(key, socket, user));
+    }
+    
+    // Register client with existing streams (to avoid creating duplicate streams)
+    public void registerClientStreams(User user, ObjectInputStream input, ObjectOutputStream output, Socket socket) {
+        ensureRunning();
+        if (user == null || socket == null || input == null || output == null) {
+            throw new IllegalArgumentException("User, socket, and streams must be provided");
+        }
+        String key = userKey(user);
+        disconnectClient(user);
+        clientSockets.put(key, socket);
+        clientOutput.put(key, output);
+        clientInput.put(key, input);
+        user.setStatus(OnlineStatus.ONLINE);
     }
 
     public void disconnectClient(User user) {

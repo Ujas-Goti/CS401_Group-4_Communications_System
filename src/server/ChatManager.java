@@ -1,6 +1,9 @@
+package server;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import common.User;
+import common.Message;
 
 public class ChatManager {
 
@@ -158,14 +161,14 @@ public class ChatManager {
         List<String> sessionLines = logger.filterSessionsByUser(user.getUserID());
         for (String line : sessionLines) {
             String[] parts = line.split("\\|");
-            if (parts.length < 3) continue;
+            if (parts.length < 4) continue;
 
             String chatID = parts[0];
             if (activeChatSessions.containsKey(chatID)) continue;
 
             // load participants
             List<User> participants = new ArrayList<>();
-            String[] uids = parts[2].split(",");
+            String[] uids = parts[3].split(",");
             for (String uid : uids) {
                 User u = logger.loadUserByID(uid);
                 if (u != null) participants.add(u);
@@ -174,8 +177,9 @@ public class ChatManager {
             // create session and add to memory & result
             if (participants.size() >= 2) {
                 // create session preserving the chatID from file
-            	boolean isGroup = Boolean.parseBoolean(parts[1]);
-            	ChatSession session = new ChatSession(chatID, participants, isGroup, null);
+            	boolean isGroup = Boolean.parseBoolean(parts[2]);
+            	String chatName = parts.length > 4 ? parts[4] : "";
+            	ChatSession session = new ChatSession(chatID, participants, isGroup, chatName);
                 activeChatSessions.put(chatID, session);
                 activeViewers.putIfAbsent(chatID, ConcurrentHashMap.newKeySet());
                 userSessions.add(session);
@@ -184,6 +188,32 @@ public class ChatManager {
         return userSessions;
     }
     
+    
+    // Find existing private session between two users
+    public ChatSession findExistingPrivateSession(List<User> participants) {
+        if (participants == null || participants.size() != 2) {
+            return null;
+        }
+        
+        String user1ID = participants.get(0).getUserID();
+        String user2ID = participants.get(1).getUserID();
+        
+        // Check active sessions
+        for (ChatSession session : activeChatSessions.values()) {
+            if (!session.isGroup() && session.getParticipants().size() == 2) {
+                List<User> sessParticipants = session.getParticipants();
+                String sessUser1 = sessParticipants.get(0).getUserID();
+                String sessUser2 = sessParticipants.get(1).getUserID();
+                
+                if ((sessUser1.equals(user1ID) && sessUser2.equals(user2ID)) ||
+                    (sessUser1.equals(user2ID) && sessUser2.equals(user1ID))) {
+                    return session;
+                }
+            }
+        }
+        
+        return null;
+    }
     
     //	Getters
     public ChatSession getChatSession(String chatID) {

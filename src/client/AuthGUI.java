@@ -1,20 +1,31 @@
+package client;
+
 import java.awt.event.*;
 import javax.swing.*;
 import java.awt.*;
+import common.User;
+import common.UserRole;
 
 public class AuthGUI {
+    
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new AuthGUI();
+        });
+    }
 
     private static final Color WA_HEADER = new Color(7, 94, 84);
     private static final Color WA_ACCENT = new Color(37, 211, 102);
     private static final Color WA_PANEL = new Color(236, 229, 221);
 
-    private Authentication authenticator;
     private JButton loginButton;
-    private ConnectionManager connectionMgr;
     private JTextField username;
     private JPasswordField password;
+    private JTextField serverHost;
+    private JTextField serverPort;
     private JFrame frame;
     private ClientGUI clientGUI;
+    private ClientConnection connection;
 
     public AuthGUI() {
         frame = new JFrame("Login");
@@ -54,10 +65,38 @@ public class AuthGUI {
         passwordLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
         passwordLabel.setForeground(new Color(74, 84, 82));
         
+        JLabel serverLabel = new JLabel("Server:");
+        serverLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        serverLabel.setForeground(new Color(74, 84, 82));
+        
+        serverHost = new JTextField("localhost", 15);
+        serverHost.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        serverHost.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(207, 210, 207)),
+                BorderFactory.createEmptyBorder(8, 12, 8, 12)
+        ));
+        
+        JLabel portLabel = new JLabel("Port:");
+        portLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        portLabel.setForeground(new Color(74, 84, 82));
+        
+        serverPort = new JTextField("1234", 15);
+        serverPort.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        serverPort.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(207, 210, 207)),
+                BorderFactory.createEmptyBorder(8, 12, 8, 12)
+        ));
+        
+        panel.setLayout(new java.awt.GridLayout(5, 2, 10, 10));
         panel.add(usernameLabel);
         panel.add(username);
         panel.add(passwordLabel);
         panel.add(password);
+        panel.add(serverLabel);
+        panel.add(serverHost);
+        panel.add(portLabel);
+        panel.add(serverPort);
+        panel.add(new JLabel());
         panel.add(loginButton);
         
         frame.add(panel);
@@ -85,6 +124,8 @@ public class AuthGUI {
     public void onLoginClicked() {
         String user = username.getText().trim();
         String pass = new String(password.getPassword());
+        String host = serverHost.getText().trim();
+        String portStr = serverPort.getText().trim();
 
         if (user.isEmpty() || pass.isEmpty()) {
             JOptionPane.showMessageDialog(frame,
@@ -94,63 +135,60 @@ public class AuthGUI {
             return;
         }
 
-        if (authenticator == null) {
+        if (host.isEmpty() || portStr.isEmpty()) {
             JOptionPane.showMessageDialog(frame,
-                    "Authentication service not initialized.",
+                    "Please enter server host and port.",
+                    "Login Error",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int port;
+        try {
+            port = Integer.parseInt(portStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(frame,
+                    "Invalid port number.",
                     "Login Error",
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        User loggedInUser = authenticator.validateCredentials(user, pass);
+        // Create connection
+        connection = new ClientConnection(host, port);
+        if (!connection.connect()) {
+            JOptionPane.showMessageDialog(frame,
+                    "Failed to connect to server. Please check server address and port.",
+                    "Connection Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-        if (loggedInUser != null) {
-            if (authenticator.checkStatus(loggedInUser)) {
-                JOptionPane.showMessageDialog(frame,
-                        "User is already logged in on another session.",
-                        "Login Failed",
-                        JOptionPane.WARNING_MESSAGE);
-                password.setText("");
-                return;
-            }
-
-            String sessionID = authenticator.createSession(loggedInUser);
-            if (sessionID == null) {
-                JOptionPane.showMessageDialog(frame,
-                        "Failed to create session. Please try again.",
-                        "Login Error",
-                        JOptionPane.ERROR_MESSAGE);
-                password.setText("");
-                return;
-            }
-
+        // Attempt login
+        if (connection.login(user, pass)) {
             frame.setVisible(false);
             frame.dispose();
 
-            initClientGUI(loggedInUser);
-
+            // Get the actual User object from server (with correct role)
+            User loggedInUser = connection.getLoggedInUser();
+            if (loggedInUser == null) {
+                // Fallback if server didn't send User
+                loggedInUser = new User(user, pass, UserRole.GENERAL);
+            }
+            initClientGUI(loggedInUser, connection);
         } else {
             JOptionPane.showMessageDialog(frame,
-                    "Invalid username or password.",
+                    "Invalid username or password, or user already logged in.",
                     "Login Failed",
                     JOptionPane.ERROR_MESSAGE);
             password.setText("");
-            username.requestFocus();
+            connection.disconnect();
         }
     }
 
-    public void initClientGUI(User u) {
-        ClientGUI g1 = new ClientGUI(u);
+    public void initClientGUI(User u, ClientConnection conn) {
+        ClientGUI g1 = new ClientGUI(u, conn);
         this.clientGUI = g1;
         g1.startManager();
-    }
-
-    // Setters for dependency injection
-    public void setAuthenticator(Authentication authenticator) {
-        this.authenticator = authenticator;
-    }
-
-    public void setConnectionMgr(ConnectionManager connectionMgr) {
-        this.connectionMgr = connectionMgr;
     }
 }
