@@ -1,10 +1,4 @@
 package server;
-<<<<<<< HEAD
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.io.Serializable;
-=======
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,7 +6,6 @@ import java.util.List;
 import java.util.UUID;
 import common.User;
 import common.Message;
->>>>>>> cb168d1 (Pushed all latest changes)
 
 public class ChatSession implements Serializable {
 	

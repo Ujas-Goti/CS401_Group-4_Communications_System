@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import common.User;
 
 public class ClientHandler implements Runnable {
 
@@ -38,23 +39,23 @@ public class ClientHandler implements Runnable {
                 // 1. get username
             	
             	// Check if the object that was passed is a String
-                Object username = inputStream.readObject();
-                if (!(username instanceof String)) {
-                    System.out.println("Expected username String, got: " + username);
+                Object usernameObj = inputStream.readObject();
+                if (!(usernameObj instanceof String)) {
+                    System.out.println("Expected username String, got: " + usernameObj);
                     break;
                 }
-                String username = (String) username;
+                String username = (String) usernameObj;
                 
                 // 2. get password
                 
                 // Check if the object that was passed is a String
-                Object password = inputStream.readObject();
-                if(!(password instanceof String)) {
-                	System.out.println("Expected username String, got: " + password);
+                Object passwordObj = inputStream.readObject();
+                if(!(passwordObj instanceof String)) {
+                	System.out.println("Expected password String, got: " + passwordObj);
                     break;
                 }
                 
-                String password = (String) password;
+                String password = (String) passwordObj;
                 
                 System.out.println("Ok, just received login attempt from username: " + username);
 
@@ -84,11 +85,10 @@ public class ClientHandler implements Runnable {
                 //     2. Route
                 }
               
-         }
-
-        } catch (EOFException exception) {
+        } catch (EOFException e) {
             System.out.println("Client disconnected: " + clientSocket.getRemoteSocketAddress());
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
 }

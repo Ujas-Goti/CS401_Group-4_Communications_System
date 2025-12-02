@@ -1,4 +1,7 @@
 package server;
+import java.util.List;
+import common.Message;
+
 public class ServerAPI {
 	private Logger logger;
 	// Chat manager
@@ -12,15 +15,15 @@ public class ServerAPI {
 	}
 	
 	public List<String> returnLog(){
-		return logger.readAll();
+		return logger.readAllSessions();
 	}
 	
 	public List<String> returnFilteredLog(String userID){
-		logger.filterByUser(String userID);
+		return logger.filterSessionsByUser(userID);
 	}
 	
 	public void updateChatLog(Message message) {
-		logger.logMessage(Message message);
+		logger.logMessage(message);
 	}
 
 	

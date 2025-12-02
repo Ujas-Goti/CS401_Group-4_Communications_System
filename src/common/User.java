@@ -2,8 +2,6 @@ package common;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.io.Serializable;
-
 public class User implements Serializable {
 	private String userID;
 	private String username;

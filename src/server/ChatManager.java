@@ -1,8 +1,5 @@
 package server;
-<<<<<<< HEAD
-=======
 
->>>>>>> cb168d1 (Pushed all latest changes)
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import common.User;

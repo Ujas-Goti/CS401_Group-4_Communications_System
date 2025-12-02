@@ -158,18 +158,36 @@ public class ClientGUI {
                             String key = "group:" + normalize(groupName);
                             chatIdsByKey.put(key, chatId);
                         }
+                    } else {
+                        // For private chats, register the key
+                        if (session.getParticipants().size() == 2) {
+                            User otherUser = null;
+                            for (User p : session.getParticipants()) {
+                                if (!p.getUserID().equals(currentUser.getUserID())) {
+                                    otherUser = p;
+                                    break;
+                                }
+                            }
+                            if (otherUser != null) {
+                                String key = "priv:" + otherUser.getUserID();
+                                chatIdsByKey.put(key, chatId);
+                            }
+                        }
                     }
                     
                     // Only open window if not already open (to prevent duplicates)
-                    if (!isChatActive(chatId)) {
+                    boolean wasAlreadyOpen = isChatActive(chatId);
+                    if (!wasAlreadyOpen) {
                         openChatWindow(session);
                     } else {
                         selectChatTab(chatId);
                     }
                     
-                    // Display history messages
-                    for (Message msg : history) {
-                        displayMessage(msg);
+                    // Only display history messages if window was just opened (not if it was already open)
+                    if (!wasAlreadyOpen && history != null) {
+                        for (Message msg : history) {
+                            displayMessage(msg);
+                        }
                     }
                 });
             }
@@ -375,12 +393,14 @@ public class ClientGUI {
             if (comp instanceof JPanel) {
                 // Check if this panel contains a chat area for this session
                 JTextArea existingArea = findTextAreaInPanel((JPanel) comp);
-                if (existingArea != null && chatAreas.containsValue(existingArea)) {
+                if (existingArea != null) {
                     // Find which chatId this area belongs to
                     for (Map.Entry<String, JTextArea> entry : chatAreas.entrySet()) {
-                        if (entry.getValue() == existingArea && entry.getKey().equals(chatId)) {
-                            selectChatTab(chatId);
-                            return;
+                        if (entry.getValue() == existingArea) {
+                            if (entry.getKey().equals(chatId)) {
+                                selectChatTab(chatId);
+                                return;
+                            }
                         }
                     }
                 }
@@ -800,13 +820,15 @@ public class ClientGUI {
         boolean isGroupContact = groupMembers.containsKey(name);
         String key = isGroupContact ? "group:" + normalize(name) : "priv:" + contact.getUserID();
         String chatId = chatIdsByKey.get(key);
+        
+        // Check if chat is already open
+        if (chatId != null && isChatActive(chatId)) {
+            selectChatTab(chatId);
+            return;
+        }
+        
+        // Check if session exists but window not open
         if (chatId != null) {
-            // Check if chat is already open
-            if (isChatActive(chatId)) {
-                selectChatTab(chatId);
-                return;
-            }
-            // Check if session exists
             ChatSession session = sessionsByChatId.get(chatId);
             if (session != null) {
                 openChatWindow(session);
@@ -814,16 +836,15 @@ public class ClientGUI {
             }
         }
         
-        // If no existing session, start a new chat (for private chats)
-        if (!isGroupContact) {
-            startPrivateChat(contact);
-        }
+        // If no existing session, start a new chat
         if (isGroupContact) {
+            // For group chats, request session from server
             List<User> members = groupMembers.get(name);
-            ChatSession session = new ChatSession(members, true, name);
-            registerSessionWithKey(session, key);
-            openChatWindow(session);
+            if (members != null && connection != null && connection.isConnected()) {
+                connection.createSession(members, true, name);
+            }
         } else {
+            // For private chats, request session from server
             startPrivateChat(contact);
         }
     }

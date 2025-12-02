@@ -255,14 +255,6 @@ public class ClientConnection {
                         List<User> users = (List<User>) obj;
                         messageListener.onUserListUpdated(users);
                     }
-                } else if (obj instanceof String) {
-                    String command = (String) obj;
-                    if (command.startsWith("NEW_SESSION:")) {
-                        String chatID = command.substring(12);
-                        if (messageListener != null) {
-                            messageListener.onNewSessionNotification(chatID);
-                        }
-                    }
                 } else if (obj instanceof ChatSession) {
                     ChatSession session = (ChatSession) obj;
                     Object historyObj = input.readObject();

@@ -1,8 +1,5 @@
 package server;
-<<<<<<< HEAD
-=======
 
->>>>>>> cb168d1 (Pushed all latest changes)
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -12,6 +9,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import common.User;
 import common.Message;
@@ -19,7 +17,6 @@ import common.UserRole;
 import common.OnlineStatus;
 
 public class Server {
-	private Authentication auth;
 
     private static final int DEFAULT_PORT = 1234;
     private static ConnectionManager connectionManager;
@@ -53,30 +50,13 @@ public class Server {
         try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
             serverSocket.setReuseAddress(true);
             System.out.println("Server started on port: " + portNumber);
-<<<<<<< HEAD
-            
-            // For each client, the handler should also have a authentication object to authenticate
-            // each user
-            Authentication auth = new Authentication("credentialFile.txt");
-=======
             System.out.println("Waiting for clients...");
->>>>>>> cb168d1 (Pushed all latest changes)
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("New client connected: " + clientSocket.getRemoteSocketAddress());
-<<<<<<< HEAD
-                
-                // Thread cannot take the auth object so we pass it into the client handler constructor
-                // instead and pass the handler to the thread that was created.
-                ClientHandler handler = new ClientHandler(clientSocket, auth);
-                
-                // Give this client its own thread
-                Thread clientThread = new Thread(handler);
-=======
 
                 Thread clientThread = new Thread(new ClientHandler(clientSocket));
->>>>>>> cb168d1 (Pushed all latest changes)
                 clientThread.start();
             }
 
@@ -218,20 +198,23 @@ public class Server {
         private void handleMessage(Message message) throws IOException {
             if (currentUser == null) return;
 
-            // Add message to chat session
-            List<User> targets = chatManager.receiveMessage(message);
+            // Add message to chat session and log it
+            chatManager.receiveMessage(message);
             
             // Get the chat session to check if it's a group
             ChatSession session = chatManager.getChatSession(message.getChatID());
-            boolean isGroup = session != null && session.isGroup();
+            if (session == null) {
+                System.err.println("No session found for chatID: " + message.getChatID());
+                return;
+            }
+            
+            boolean isGroup = session.isGroup();
+            List<User> targets = new ArrayList<>();
 
             // For group chats, send to ALL online participants (not just active viewers)
-            if (isGroup && session != null) {
+            if (isGroup) {
                 List<User> allParticipants = session.getParticipants();
                 Set<String> targetUserIDs = new java.util.HashSet<>();
-                for (User target : targets) {
-                    targetUserIDs.add(target.getUserID());
-                }
                 
                 // Add all online participants who aren't the sender
                 for (User participant : allParticipants) {
@@ -247,6 +230,15 @@ public class Server {
                         }
                     }
                 }
+            } else {
+                // Private chat: send to the other participant if they're online
+                for (User participant : session.getParticipants()) {
+                    if (!participant.getUserID().equals(message.getSenderID())) {
+                        if (onlineUsers.containsKey(participant.getUserID())) {
+                            targets.add(onlineUsers.get(participant.getUserID()));
+                        }
+                    }
+                }
             }
 
             // Send message to all targets
@@ -256,6 +248,7 @@ public class Server {
                     try {
                         targetOut.writeObject(message);
                         targetOut.flush();
+                        System.out.println("Sent message to " + target.getUserID());
                     } catch (IOException e) {
                         // User may have disconnected
                         System.err.println("Failed to send message to " + target.getUserID() + ": " + e.getMessage());
@@ -308,17 +301,24 @@ public class Server {
             output.flush();
 
             // Notify other participants by sending them the session
+            // Only send to online participants
             for (User participant : participants) {
                 if (!participant.getUserID().equals(currentUser.getUserID())) {
-                    ObjectOutputStream targetOut = (ObjectOutputStream) connectionManager.getOutputStream(participant);
-                    if (targetOut != null) {
-                        try {
-                            // Send the session and empty history to other participants
-                            targetOut.writeObject(session);
-                            targetOut.writeObject(new ArrayList<Message>());
-                            targetOut.flush();
-                        } catch (IOException e) {
-                            // Participant may have disconnected
+                    // Check if participant is online
+                    if (onlineUsers.containsKey(participant.getUserID())) {
+                        User onlineParticipant = onlineUsers.get(participant.getUserID());
+                        ObjectOutputStream targetOut = (ObjectOutputStream) connectionManager.getOutputStream(onlineParticipant);
+                        if (targetOut != null) {
+                            try {
+                                // Send the session and empty history to other participants
+                                targetOut.writeObject(session);
+                                targetOut.writeObject(new ArrayList<Message>());
+                                targetOut.flush();
+                                System.out.println("Sent session notification to " + onlineParticipant.getUserID());
+                            } catch (IOException e) {
+                                // Participant may have disconnected
+                                System.err.println("Failed to notify " + onlineParticipant.getUserID() + ": " + e.getMessage());
+                            }
                         }
                     }
                 }
