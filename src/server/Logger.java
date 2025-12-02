@@ -1,68 +1,118 @@
 
 import java.io.*;
 import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Logger {
 
     private final String logFile;
+    private final String sessionsFile;
+    private final String credentialsFile;
 
-    public Logger(String logFile) {
+    public Logger(String logFile, String sessionsFile, String credentialsFile) {
         this.logFile = logFile;
+        this.sessionsFile = sessionsFile;
+        this.credentialsFile = credentialsFile;
     }
 
-    //	Saves a message to the log file in the format: messageID|chatSessionID|senderUserID|timestamp|messageText
+    // log a message in logFile
     public synchronized void logMessage(Message message) {
         String line = String.format("%s|%s|%s|%s|%s",
                 message.getMessageID(),
-                message.getChatSessionID(),
-                message.getSenderUserID(),
-                LocalDateTime.now(),
-                message.getText().replace("|", "/") 	// replace to avoid breaking format
+                message.getChatID(),
+                message.getSenderID(),
+                message.getTimeStamp().toString(),
+                message.getContent().replace("|", "/")
         );
 
-        
-        try (FileWriter fw = new FileWriter(logFile, true);
-             BufferedWriter bw = new BufferedWriter(fw);
-             PrintWriter out = new PrintWriter(bw)) {
-
+        try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(logFile, true)))) {
             out.println(line);
-
         } catch (IOException e) {
             System.err.println("ERROR writing to log: " + e.getMessage());
         }
     }
 
     
-    //	Returns the entire log as a List<String>
-    public synchronized List<String> readAll() {
-        List<String> lines = new ArrayList<>();
-
+    // read all messages for a chat
+    public synchronized List<Message> getMessagesForChat(String chatID) {
+        List<Message> messages = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {
             String line;
+            
             while ((line = br.readLine()) != null) {
-                lines.add(line);
+                String[] parts = line.split("\\|");
+                if (parts.length < 5) continue;
+                if (!parts[1].equals(chatID)) continue;
+
+                String messageID = parts[0];
+                String chatID = parts[1];
+                String senderID = parts[2];
+                LocalDateTime timestamp = LocalDateTime.parse(parts[3]);
+                String content = parts[4];
+
+                Message msg = new Message(chatID, senderID, content);
+                messages.add(msg);
             }
         } catch (IOException e) {
             System.err.println("ERROR reading log: " + e.getMessage());
         }
+        return messages;
+    }
 
+    // log a chat session in sessionsFile
+    public synchronized void logSession(ChatSession session) {
+        String participants = session.getParticipants().stream().map(User::getUserID).collect(Collectors.joining(","));
+        String line = String.format("%s|%b|%s", session.getChatID(), session.isGroup(), participants);
+
+        try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(sessionsFile, true)))) {
+            out.println(line);
+        } catch (IOException e) {
+            System.err.println("ERROR writing session log: " + e.getMessage());
+        }
+    }
+
+    // read all chat sessions from file
+    public synchronized List<String> readAllSessions() {
+        List<String> lines = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(sessionsFile))) {
+            String line;
+            while ((line = br.readLine()) != null) lines.add(line);
+        } catch (IOException e) {
+            System.err.println("ERROR reading sessions log: " + e.getMessage());
+        }
         return lines;
     }
 
     
-    //	returns lines filtered by chat session ID
-    public synchronized List<String> filterByChat(String chatID) {
-        return readAll()
-                .stream()
-                .filter(line -> line.split("\\|")[1].equals(chatID))
-                .toList();
+    // get sessions containing a user
+    public synchronized List<String> filterSessionsByUser(String userID) {
+        return readAllSessions().stream().filter(line -> {
+            String[] parts = line.split("\\|");
+            if (parts.length < 3) return false;
+            String[] users = parts[2].split(",");
+            for (String u : users) if (u.equals(userID)) return true;
+            return false;
+        }).collect(Collectors.toList());
     }
 
-    //	returns lines filtered by chat user ID
-    public synchronized List<String> filterByUser(String userID) {
-        return readAll()
-                .stream()
-                .filter(line -> line.split("\\|")[2].equals(userID))
-                .toList();
+    // load user by ID from credentials file
+    public synchronized User loadUserByID(String userID) {
+        try (BufferedReader br = new BufferedReader(new FileReader(credentialsFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length < 4) continue;
+                if (parts[0].equals(userID)) {
+                    String username = parts[1];
+                    String password = parts[2];
+                    User.UserRole role = User.UserRole.valueOf(parts[3].toUpperCase());
+                    return new User(userID, username, password, role);
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("ERROR loading user: " + e.getMessage());
+        }
+        return null;
     }
 }
