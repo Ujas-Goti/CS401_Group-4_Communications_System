@@ -71,7 +71,21 @@
 - Phase 2 presentation slides was created using google slides
 - The Use Case Diagram was modified using a new app "Lucid App"
 - Group members added a new class named "AuthGui" to the class diagram
-- A new association was created, the "AuthGui" with "authentication" class and "clientGui" class 
+- A new association was created, the "AuthGui" with "authentication" class and "clientGui" class
+
+**11/05/25**
+-- **Attendees:** Carlos M, Diana, Ujas, Carlos O
+- 3:44pm 
+- Set up a file structure on github and commited it to the repository
+- Created a pull request for the User and Message class
+
+**11/14/25**
+-- **Attendees:** Carlos M, Carlos O
+- 2:00pm \- 3:15pm
+- Met to discuss the GUI          
+
+
+
 
  
  
