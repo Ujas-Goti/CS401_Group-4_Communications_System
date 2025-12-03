@@ -26,14 +26,14 @@ public class Message implements Serializable {
 		this.messageSent = true;
 	}
 
-	//	Constructor for Looger to rebuild messages from log
+	//Constructor for Looger to rebuild messages from log
 	public Message(String messageID, String chatID, String senderID, LocalDateTime timeStamp, String content) {
 		this.messageID = messageID;
 		this.chatID = chatID;
 		this.senderID = senderID;
 		this.timeStamp = timeStamp;
 		this.content = content;
-		//this.messageSent = messageSent;
+		//this.messageSent = messageSent; I have commented this one out because it was not being used (Carlos O)
 
 	}
 

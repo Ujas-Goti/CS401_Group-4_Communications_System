@@ -25,7 +25,7 @@ public class Logger {
         this.credentialsFile = credentialsFile;
     }
 
-    // log a message in logFile with MESSAGE| prefix
+    //log a message in logFile with MESSAGE| prefix
     public synchronized void logMessage(Message message) {
         String line = String.format("MESSAGE|%s|%s|%s|%s|%s",
                 message.getMessageID(),
@@ -43,7 +43,7 @@ public class Logger {
     }
 
 
-    // read all messages for a chat (filter by MESSAGE| prefix)
+    //read all messages for a chat (filter by MESSAGE| prefix)
     public synchronized List<Message> getMessagesForChat(String chatID) {
         List<Message> messages = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {
@@ -74,7 +74,7 @@ public class Logger {
         return messages;
     }
 
-    // log a chat session in logFile with SESSION| prefix
+    //log a chat session in logFile with SESSION| prefix
     public synchronized void logSession(ChatSession session) {
         String participants = session.getParticipants().stream().map(User::getUserID).collect(Collectors.joining(","));
         String chatName = session.getChatName() != null ? session.getChatName() : "";
@@ -92,7 +92,7 @@ public class Logger {
         }
     }
 
-    // read all chat sessions from file (filter by SESSION| prefix)
+    //read all chat sessions from file (filter by SESSION| prefix)
     public synchronized List<String> readAllSessions() {
         List<String> lines = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {
@@ -109,7 +109,7 @@ public class Logger {
     }
 
 
-    // get sessions containing a user
+    //get sessions containing a user
     public synchronized List<String> filterSessionsByUser(String userID) {
         return readAllSessions().stream().filter(line -> {
             String[] parts = line.split("\\|");
@@ -126,7 +126,7 @@ public class Logger {
         }).collect(Collectors.toList());
     }
 
-    // load user by ID from credentials file
+    //load user by ID from credentials file
     public synchronized User loadUserByID(String userID) {
         try (BufferedReader br = new BufferedReader(new FileReader(credentialsFile))) {
             String line;
@@ -140,7 +140,7 @@ public class Logger {
                     String password = parts[1];
                     UserRole role = UserRole.valueOf(parts[2].toUpperCase());
 
-                    return new User(username, password, role);		// now updated to match new main User constructor (username, password, role)
+                    return new User(username, password, role);		//now updated to match new main User constructor (username, password, role)
                 }
             }
         } catch (IOException e) {
@@ -149,7 +149,7 @@ public class Logger {
         return null;
     }
 
-    // Read entire log file contents (for admin viewing)
+    //Read entire log file contents (for admin viewing)
     public synchronized String readAllLogs() {
         StringBuilder content = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {

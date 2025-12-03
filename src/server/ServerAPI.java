@@ -5,11 +5,11 @@ import common.Message;
 
 public class ServerAPI {
 	private Logger logger;
-	// Chat manager
-		// Return logs
-		// Update log
-		// Chat routing:  clientGUI -> chatsession -> chatmanager ->  SERVER ->
-		//                chatmanager -> chatsession -> ClientGUI(recipient)
+	//Chat manager
+		//Return logs
+		//Update log
+		//Chat routing:  clientGUI -> chatsession -> chatmanager ->  SERVER ->
+		//chatmanager -> chatsession -> ClientGUI(recipient) (Carlos O)
 
 	public ServerAPI(){
 
@@ -26,14 +26,4 @@ public class ServerAPI {
 	public void updateChatLog(Message message) {
 		logger.logMessage(message);
 	}
-
-
-	// Authenticator
-		// Authenticate credentials
-		// Find role
-		// Create User object for the person logging in
-		// Return the user object back to the client
-
-	//
-
 }

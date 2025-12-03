@@ -39,6 +39,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
+//Everything must be imported one by one o9therwise it wouldnt work (Ujas)
+
 import common.Message;
 import common.OnlineStatus;
 import common.User;
@@ -52,167 +54,167 @@ public class ClientGUI {
     private static final Color WA_ACCENT = new Color(37, 211, 102);
     private static final Color WA_PANEL = new Color(236, 229, 221);
 
-    private final User currentUser;
-    private Notification notification;
-    private ClientConnection connection;
+    private final User user;
+    private Notification notif;
+    private ClientConnection conn;
 
-    private final JFrame chat;
-    private final JTabbedPane chatTabs;
-    private final JList<User> usersList;
-    private final JTextField searchBar;
-    private final JLabel statusLabel;
-    private final JLabel currentUserLabel;
-    private final JButton createGroupButton;
-    private final JButton viewLogsButton;
-    private final JButton logoutButton;
+    private final JFrame frame;
+    private final JTabbedPane tabs;
+    private final JList<User> userList;
+    private final JTextField search;
+    private final JLabel status;
+    private final JLabel userLabel;
+    private final JButton groupBtn;
+    private final JButton logsBtn;
+    private final JButton logoutBtn;
 
-    private final Map<String, JTextArea> chatAreas;
-    private final Map<String, ChatSession> sessionsByChatId;
-    private final Map<String, List<User>> groupMembers;
-    private final Map<String, String> chatIdsByKey;
-    private List<User> cachedUsers;
-    private List<User> allRegisteredUsers; // All users from server (for group creation)
+    private final Map<String, JTextArea> areas;
+    private final Map<String, ChatSession> sessions;
+    private final Map<String, List<User>> groups;
+    private final Map<String, String> keys;
+    private List<User> cached;
+    private List<User> allUsers; //All users from server (for group creation)
 
-    public ClientGUI(User user, ClientConnection connection) {
-        this.currentUser = user;
-        this.connection = connection;
-        this.notification = new Notification("", user);
+    public ClientGUI(User user, ClientConnection conn) {
+        this.user = user;
+        this.conn = conn;
+        this.notif = new Notification("", user);
 
-        setupConnection();
+        setupConn();
 
-        this.chat = new JFrame("Communication Client");
-        this.chatTabs = new JTabbedPane();
-        this.usersList = new JList<>();
-        this.searchBar = new JTextField();
-        this.statusLabel = new JLabel();
-        this.currentUserLabel = new JLabel();
-        this.createGroupButton = new JButton("New Group");
-        this.viewLogsButton = new JButton("View Logs");
-        this.logoutButton = new JButton("Logout");
-        this.chatAreas = new HashMap<>();
-        this.sessionsByChatId = new HashMap<>();
-        this.groupMembers = new HashMap<>();
-        this.cachedUsers = new ArrayList<>();
-        this.allRegisteredUsers = new ArrayList<>();
-        this.chatIdsByKey = new HashMap<>();
+        this.frame = new JFrame("Communication Client");
+        this.tabs = new JTabbedPane();
+        this.userList = new JList<>();
+        this.search = new JTextField();
+        this.status = new JLabel();
+        this.userLabel = new JLabel();
+        this.groupBtn = new JButton("New Group");
+        this.logsBtn = new JButton("View Logs");
+        this.logoutBtn = new JButton("Logout");
+        this.areas = new HashMap<>();
+        this.sessions = new HashMap<>();
+        this.groups = new HashMap<>();
+        this.cached = new ArrayList<>();
+        this.allUsers = new ArrayList<>();
+        this.keys = new HashMap<>();
 
         initUI();
     }
 
     private void initUI() {
-        chat.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        chat.setLayout(new BorderLayout());
-        chat.getContentPane().setBackground(WA_PANEL);
-        chat.setPreferredSize(new Dimension(900, 600));
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+        frame.getContentPane().setBackground(WA_PANEL);
+        frame.setPreferredSize(new Dimension(900, 600));
 
-        chat.add(buildHeader(), BorderLayout.NORTH);
-        chat.add(buildLeftPanel(), BorderLayout.WEST);
-        chat.add(buildChatArea(), BorderLayout.CENTER);
-        chat.add(buildStatusBar(), BorderLayout.SOUTH);
+        frame.add(buildHeader(), BorderLayout.NORTH);
+        frame.add(buildLeftPanel(), BorderLayout.WEST);
+        frame.add(buildChatArea(), BorderLayout.CENTER);
+        frame.add(buildStatusBar(), BorderLayout.SOUTH);
 
         bindActions();
-        updateOwnStatus(currentUser != null ? currentUser.getStatus() : OnlineStatus.OFFLINE);
-        displayAdminTools();
-        chat.pack();
-        chat.setLocationRelativeTo(null);
+        updateStatus(user != null ? user.getStatus() : OnlineStatus.OFFLINE);
+        showAdminTools();
+        frame.pack();
+        frame.setLocationRelativeTo(null);
     }
 
-    public void startManager() {
-        chat.setVisible(true);
+    public void start() {
+        frame.setVisible(true);
 
-        // Request initial user list and all users
-        if (connection != null && connection.isConnected()) {
-            connection.requestUserList();
-            connection.requestAllUsers(); // Get all users for group creation
+        //Request initial user list and all users
+        if (conn != null && conn.isConnected()) {
+            conn.requestUsers();
+            conn.requestAll(); //Get all users for group creation and Carlos M try to fix the error
         }
     }
 
-    private void setupConnection() {
-        if (connection == null) {
+    private void setupConn() {
+        if (conn == null) {
 			return;
 		}
 
-        connection.setMessageListener(new ClientConnection.MessageListener() {
+        conn.setListener(new ClientConnection.MessageListener() {
             @Override
             public void onMessageReceived(Message message) {
-                SwingUtilities.invokeLater(() -> displayMessage(message));
+                SwingUtilities.invokeLater(() -> showMessage(message));
             }
 
             @Override
             public void onUserListUpdated(List<User> users) {
-                SwingUtilities.invokeLater(() -> updateOnlineUsers(users));
+                SwingUtilities.invokeLater(() -> refreshUsers(users));
             }
 
             @Override
             public void onAllUsersReceived(List<User> users) {
-                SwingUtilities.invokeLater(() -> updateAllUsers(users));
+                SwingUtilities.invokeLater(() -> updateAll(users));
             }
 
             @Override
             public void onSessionReceived(ChatSession session, List<Message> history) {
                 SwingUtilities.invokeLater(() -> {
-                    String chatId = registerSession(session);
+                    String id = register(session);
 
-                    // Add group to contact list if it's a group chat
+                    //Add group to contact list if it's a group frame
                     if (session.isGroupChat()) {
                         String groupName = session.getChatName();
                         if (groupName != null && !groupName.isEmpty()) {
-                            groupMembers.put(groupName, session.getParticipants());
-                            addGroupContact(groupName, hasAnyOtherOnline(session.getParticipants()));
-                            // Register with key for group
+                            groups.put(groupName, session.getParticipants());
+                            addGroup(groupName, hasOtherOnline(session.getParticipants()));
+                            //Register with key for group
                             String key = "group:" + normalize(groupName);
-                            chatIdsByKey.put(key, chatId);
+                            keys.put(key, id);
                         }
                     } else {
-                        // For private chats, register the key
+                        //For private frames, register the key
                         if (session.getParticipants().size() == 2) {
                             User otherUser = null;
                             for (User p : session.getParticipants()) {
-                                if (!p.getUserID().equals(currentUser.getUserID())) {
+                                if (!p.getUserID().equals(user.getUserID())) {
                                     otherUser = p;
                                     break;
                                 }
                             }
                             if (otherUser != null) {
                                 String key = "priv:" + otherUser.getUserID();
-                                chatIdsByKey.put(key, chatId);
+                                keys.put(key, id);
                             }
                         }
                     }
 
-                    // Only open window if not already open (to prevent duplicates)
-                    boolean wasAlreadyOpen = isChatActive(chatId);
+                    //Only open window if not already open (to prevent duplicates)
+                    boolean wasAlreadyOpen = isOpen(id);
                     if (!wasAlreadyOpen) {
-                        openChatWindow(session);
+                        openChat(session);
                     } else {
-                        selectChatTab(chatId);
+                        selectTab(id);
                     }
 
-                    // Only display history messages if window was just opened (not if it was already open)
+                    //Only display history messages if window was just opened (not if it was already open)
                     if (!wasAlreadyOpen && history != null) {
                         for (Message msg : history) {
-                            displayMessage(msg);
+                            showMessage(msg);
                         }
                     }
                 });
             }
 
             @Override
-            public void onNewSessionNotification(String chatID) {
-                // Request session details from server
+            public void onNewSessionNotification(String frameID) {
+                //Request session details from server
                 SwingUtilities.invokeLater(() -> {
-                    // The session should be sent by server, but if not, we can request it
-                    // For now, the server sends the session when user opens it
+                    //The session should be sent by server, but if not, we can request it
+                    //For now, the server sends the session when user opens it
                 });
             }
 
             @Override
             public void onChatLogsReceived(String logContent) {
                 SwingUtilities.invokeLater(() -> {
-                    // Create dialog to display logs
-                    JDialog logDialog = new JDialog(chat, "Chat Logs", true);
+                    //Create dialog to display logs
+                    JDialog logDialog = new JDialog(frame, "Chat Logs", true);
                     logDialog.setSize(800, 600);
-                    logDialog.setLocationRelativeTo(chat);
+                    logDialog.setLocationRelativeTo(frame);
 
                     JTextArea logArea = new JTextArea();
                     logArea.setEditable(false);
@@ -234,145 +236,145 @@ public class ClientGUI {
             }
         });
 
-        // Start the listener thread now that message listener is set
-        if (connection.isConnected()) {
-            connection.startListenerThread();
+        //Start the listener thread now that message listener is set
+        if (conn.isConnected()) {
+            conn.startListener();
         }
     }
 
 
-    public void displayUserList(List<User> users) {
-        cachedUsers = new ArrayList<>();
+    public void showUsers(List<User> users) {
+        cached = new ArrayList<>();
         DefaultListModel<User> model = new DefaultListModel<>();
         if (users != null) {
-            for (User user : users) {
-                if ((user == null) || (currentUser != null && user.getUserID().equals(currentUser.getUserID()))) {
+            for (User u : users) {
+                if ((u == null) || (user != null && u.getUserID().equals(user.getUserID()))) {
                     continue;
                 }
-                cachedUsers.add(user);
-                model.addElement(user);
+                cached.add(u);
+                model.addElement(u);
             }
         }
-        usersList.setModel(model);
+        userList.setModel(model);
     }
 
-    public void updateOnlineUsers(List<User> users) {
-        displayUserList(users);
+    public void refreshUsers(List<User> users) {
+        showUsers(users);
     }
 
-    public void updateAllUsers(List<User> users) {
-        // Store all registered users (for group creation)
-        allRegisteredUsers = new ArrayList<>();
+    public void updateAll(List<User> users) {
+        //Store all registered users (for group creation)
+        allUsers = new ArrayList<>();
         if (users != null) {
-            for (User user : users) {
-                // Don't include current user
-                if ((user == null) || (currentUser != null && user.getUserID().equals(currentUser.getUserID()))) {
+            for (User u : users) {
+                //Don't include current user
+                if ((u == null) || (user != null && u.getUserID().equals(user.getUserID()))) {
                     continue;
                 }
-                allRegisteredUsers.add(user);
+                allUsers.add(u);
             }
         }
     }
 
-    public void filterUserList(String query) {
-        if (cachedUsers == null) {
+    public void filterUsers(String query) {
+        if (cached == null) {
             return;
         }
         String term = query == null ? "" : query.trim().toLowerCase();
         DefaultListModel<User> model = new DefaultListModel<>();
-        for (User user : cachedUsers) {
-            if (term.isEmpty() || user.getUsername().toLowerCase().contains(term)) {
-                model.addElement(user);
+        for (User u : cached) {
+            if (term.isEmpty() || u.getUsername().toLowerCase().contains(term)) {
+                model.addElement(u);
             }
         }
-        usersList.setModel(model);
+        userList.setModel(model);
     }
 
-    public void startPrivateChat(User selectedUser) {
+    public void startPrivate(User selectedUser) {
         if (selectedUser == null) {
             return;
         }
         String key = "priv:" + selectedUser.getUserID();
-        String chatId = chatIdsByKey.get(key);
-        if (chatId != null && isChatActive(chatId)) {
-            selectChatTab(chatId);
+        String id = keys.get(key);
+        if (id != null && isOpen(id)) {
+            selectTab(id);
             return;
         }
 
         List<User> participants = new ArrayList<>();
-        if (currentUser != null) {
-            participants.add(currentUser);
+        if (user != null) {
+            participants.add(user);
         }
         participants.add(selectedUser);
 
-        // Request session creation from server
-        if (connection != null && connection.isConnected()) {
-            connection.createSession(participants, false, selectedUser.getUsername());
+        //Request session creation from server
+        if (conn != null && conn.isConnected()) {
+            conn.create(participants, false, selectedUser.getUsername());
         } else {
-            // Fallback: create local session
+            //Fallback: create local session
             ChatSession session = new ChatSession(participants, false, selectedUser.getUsername());
-            registerSessionWithKey(session, key);
-            openChatWindow(session);
+            registerKey(session, key);
+            openChat(session);
         }
     }
 
-    public void startGroupChat(List<User> selectedUsers, String name) {
+    public void startGroup(List<User> selectedUsers, String name) {
         if (selectedUsers == null || selectedUsers.isEmpty() || name == null || name.isEmpty()) {
             return;
         }
         String key = "group:" + normalize(name);
-        String chatId = chatIdsByKey.get(key);
-        if (chatId != null && isChatActive(chatId)) {
-            selectChatTab(chatId);
+        String id = keys.get(key);
+        if (id != null && isOpen(id)) {
+            selectTab(id);
             return;
         }
         List<User> members = new ArrayList<>(selectedUsers);
-        if (currentUser != null && !members.contains(currentUser)) {
-            members.add(0, currentUser);
+        if (user != null && !members.contains(user)) {
+            members.add(0, user);
         }
 
-        // Request session creation from server
-        if (connection != null && connection.isConnected()) {
-            connection.createSession(members, true, name);
+        //Request session creation from server
+        if (conn != null && conn.isConnected()) {
+            conn.create(members, true, name);
         } else {
-            // Fallback: create local session
+            //Fallback: create local session
             ChatSession session = new ChatSession(members, true, name);
-            groupMembers.put(name, members);
-            addGroupContact(name, hasAnyOtherOnline(members));
-            registerSessionWithKey(session, key);
-            openChatWindow(session);
+            groups.put(name, members);
+            addGroup(name, hasOtherOnline(members));
+            registerKey(session, key);
+            openChat(session);
         }
     }
 
-    public void createGroupChatDialog() {
-        // Request all users from server if we don't have them yet
-        if (connection != null && connection.isConnected()) {
-            if (allRegisteredUsers == null || allRegisteredUsers.isEmpty()) {
-                connection.requestAllUsers();
-                // The response will update allRegisteredUsers via updateAllUsers callback
-                // For now, show a message
-                JOptionPane.showMessageDialog(chat,
+    public void showGroupDialog() {
+        //Request all users from server if we don't have them yet
+        if (conn != null && conn.isConnected()) {
+            if (allUsers == null || allUsers.isEmpty()) {
+                conn.requestAll();
+                //The response will update allUsers via updateAll callback
+                //For now, show a message
+                JOptionPane.showMessageDialog(frame,
                     "Loading users from server... Please click 'New Group' again in a moment.",
                     "Loading Users",
                     JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
         } else {
-            JOptionPane.showMessageDialog(chat, "No connection to server");
+            JOptionPane.showMessageDialog(frame, "No conn to server");
             return;
         }
 
-        // Use all registered users for group creation (not just online ones)
-        if (allRegisteredUsers == null || allRegisteredUsers.isEmpty()) {
-            JOptionPane.showMessageDialog(chat, "No users available");
+        //Use all registered users for group creation (not just online ones)
+        if (allUsers == null || allUsers.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "No users available");
             return;
         }
-        JDialog dialog = new JDialog(chat, "Create Group", true);
+        JDialog dialog = new JDialog(frame, "Create Group", true);
         dialog.setLayout(new BorderLayout());
 
-        // Create a list model with all registered users
+        //Create a list model with all registered users
         DefaultListModel<User> allUsersModel = new DefaultListModel<>();
-        for (User user : allRegisteredUsers) {
+        for (User user : allUsers) {
             allUsersModel.addElement(user);
         }
 
@@ -385,7 +387,7 @@ public class ClientGUI {
             List<User> chosen = selectionList.getSelectedValuesList();
             String groupName = nameField.getText().trim();
             if (!chosen.isEmpty() && !groupName.isEmpty()) {
-                startGroupChat(chosen, groupName);
+                startGroup(chosen, groupName);
                 dialog.dispose();
             }
         });
@@ -394,34 +396,34 @@ public class ClientGUI {
         dialog.add(new JScrollPane(selectionList), BorderLayout.CENTER);
         dialog.add(createButton, BorderLayout.SOUTH);
         dialog.setSize(300, 400);
-        dialog.setLocationRelativeTo(chat);
+        dialog.setLocationRelativeTo(frame);
         dialog.setVisible(true);
     }
 
-    public void openChatWindow(ChatSession session) {
+    public void openChat(ChatSession session) {
         if (session == null) {
             return;
         }
-        String chatId = registerSession(session);
+        String id = register(session);
 
-        // Check if chat window already exists - if so, just select it
-        if (chatAreas.containsKey(chatId)) {
-            selectChatTab(chatId);
+        //Check if frame window already exists - if so, just select it
+        if (areas.containsKey(id)) {
+            selectTab(id);
             return;
         }
 
-        // Check if tab already exists by checking all tabs
-        for (int i = 0; i < chatTabs.getTabCount(); i++) {
-            Component comp = chatTabs.getComponentAt(i);
+        //Check if tab already exists by checking all tabs
+        for (int i = 0; i < tabs.getTabCount(); i++) {
+            Component comp = tabs.getComponentAt(i);
             if (comp instanceof JPanel) {
-                // Check if this panel contains a chat area for this session
+                //Check if this panel contains a frame area for this session
                 JTextArea existingArea = findTextAreaInPanel((JPanel) comp);
                 if (existingArea != null) {
-                    // Find which chatId this area belongs to
-                    for (Map.Entry<String, JTextArea> entry : chatAreas.entrySet()) {
+                    //Find which id this area belongs to
+                    for (Map.Entry<String, JTextArea> entry : areas.entrySet()) {
                         if (entry.getValue() == existingArea) {
-                            if (entry.getKey().equals(chatId)) {
-                                selectChatTab(chatId);
+                            if (entry.getKey().equals(id)) {
+                                selectTab(id);
                                 return;
                             }
                         }
@@ -448,21 +450,21 @@ public class ClientGUI {
         send.setFocusPainted(false);
         send.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
 
-        JPanel chatHeader = new JPanel(new BorderLayout());
-        chatHeader.setBackground(WA_HEADER);
-        chatHeader.setBorder(BorderFactory.createEmptyBorder(6, 12, 6, 12));
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(WA_HEADER);
+        header.setBorder(BorderFactory.createEmptyBorder(6, 12, 6, 12));
         
-        // Determine the display name: for private chats, show the other participant's name
+        //Determine the display name: for private chats, show the other participant's name
         String displayName;
         if (session.isGroupChat()) {
             displayName = "Group: " + session.getChatName();
         } else {
-            // For private chats, find the other participant (not current user)
+            //For private chats, find the other participant (not current user)
             displayName = session.getChatName();
             List<User> participants = session.getParticipants();
-            if (participants != null && participants.size() == 2 && currentUser != null) {
+            if (participants != null && participants.size() == 2 && user != null) {
                 for (User participant : participants) {
-                    if (!participant.getUserID().equals(currentUser.getUserID())) {
+                    if (!participant.getUserID().equals(user.getUserID())) {
                         displayName = participant.getUsername();
                         break;
                     }
@@ -473,7 +475,7 @@ public class ClientGUI {
         JLabel title = new JLabel(displayName);
         title.setForeground(Color.WHITE);
         title.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        chatHeader.add(title, BorderLayout.WEST);
+        header.add(title, BorderLayout.WEST);
 
         if (session.isGroupChat()) {
             JButton membersButton = new JButton("Members");
@@ -481,14 +483,14 @@ public class ClientGUI {
             membersButton.setBackground(WA_HEADER);
             membersButton.setFocusPainted(false);
             membersButton.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
-            membersButton.addActionListener(e -> showGroupMembersDialog(session.getChatName()));
-            chatHeader.add(membersButton, BorderLayout.EAST);
+            membersButton.addActionListener(e -> showMembers(session.getChatName()));
+            header.add(membersButton, BorderLayout.EAST);
         }
 
         JScrollPane scrollPane = new JScrollPane(area);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
 
-        panel.add(chatHeader, BorderLayout.NORTH);
+        panel.add(header, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(220, 220, 220)));
@@ -504,21 +506,21 @@ public class ClientGUI {
             }
         });
 
-        chatAreas.put(chatId, area);
-        addChatTab(chatId, panel);
+        areas.put(id, area);
+        addChatTab(id, panel);
     }
 
-    public void displayMessage(Message message) {
+    public void showMessage(Message message) {
         if (message == null) {
             return;
         }
-        String chatId = message.getChatID();
-        JTextArea area = chatAreas.get(chatId);
+        String id = message.getChatID();
+        JTextArea area = areas.get(id);
         if (area == null) {
-            ChatSession session = sessionsByChatId.get(chatId);
+            ChatSession session = sessions.get(id);
             if (session != null) {
-                openChatWindow(session);
-                area = chatAreas.get(chatId);
+                openChat(session);
+                area = areas.get(id);
             }
         }
         if (area == null) {
@@ -530,9 +532,9 @@ public class ClientGUI {
         area.append(line + System.lineSeparator());
         area.setCaretPosition(area.getDocument().getLength());
 
-        if (!isChatActive(chatId) && notification != null) {
-            notification.setSenderName(sender);
-            notification.triggerNotification();
+        if (!isOpen(id) && notif != null) {
+            notif.setSenderName(sender);
+            notif.triggerNotification();
         }
     }
 
@@ -540,47 +542,47 @@ public class ClientGUI {
         if (session == null || content == null || content.isEmpty()) {
             return;
         }
-        String chatId = registerSession(session);
-        String senderId = currentUser != null && currentUser.getUserID() != null
-                ? currentUser.getUserID()
-                : currentUser != null ? currentUser.getUsername() : "unknown";
-        Message message = new Message(chatId, senderId, content);
+        String id = register(session);
+        String senderId = user != null && user.getUserID() != null
+                ? user.getUserID()
+                : user != null ? user.getUsername() : "unknown";
+        Message message = new Message(id, senderId, content);
 
-        // Send via network
-        if (connection != null && connection.isConnected()) {
-            connection.sendMessage(message);
+        //Send via network
+        if (conn != null && conn.isConnected()) {
+            conn.send(message);
         } else {
-            // Fallback: just display locally if no connection
-            displayMessage(message);
+            //Fallback: just display locally if no conn
+            showMessage(message);
         }
     }
 
-    public void updateOwnStatus(OnlineStatus status) {
-        if (currentUser != null && status != null) {
-            currentUser.setStatus(status);
+    public void updateStatus(OnlineStatus st) {
+        if (user != null && st != null) {
+            user.setStatus(st);
         }
-        statusLabel.setText("Status: " + (status != null ? status.name() : "UNKNOWN"));
+        status.setText("Status: " + (st != null ? st.name() : "UNKNOWN"));
     }
 
-    public boolean isChatActive(String chatId) {
-        return chatAreas.containsKey(chatId);
+    public boolean isOpen(String id) {
+        return areas.containsKey(id);
     }
 
-    public void displayAdminTools() {
-        boolean isAdmin = currentUser != null && currentUser.getRole() == UserRole.ADMIN;
-        viewLogsButton.setVisible(isAdmin);
+    public void showAdminTools() {
+        boolean isAdmin = user != null && user.getRole() == UserRole.ADMIN;
+        logsBtn.setVisible(isAdmin);
     }
 
-    public void viewChatLogsDialog() {
-        if (connection == null || !connection.isConnected()) {
-            JOptionPane.showMessageDialog(chat, "Not connected to server.");
+    public void showLogs() {
+        if (conn == null || !conn.isConnected()) {
+            JOptionPane.showMessageDialog(frame, "Not connected to server.");
             return;
         }
 
-        // Create a dialog to view chat logs
-        JDialog logDialog = new JDialog(chat, "Chat Logs", true);
+        //Create a dialog to view frame logs
+        JDialog logDialog = new JDialog(frame, "Chat Logs", true);
         logDialog.setSize(800, 600);
-        logDialog.setLocationRelativeTo(chat);
+        logDialog.setLocationRelativeTo(frame);
 
         JTextArea logArea = new JTextArea();
         logArea.setEditable(false);
@@ -599,61 +601,61 @@ public class ClientGUI {
         logDialog.add(panel);
         logDialog.setVisible(true);
 
-        // Request logs from server
-        connection.requestChatLogs();
+        //Request logs from server
+        conn.requestLogs();
     }
 
     public void logout(User user) {
-        if (connection != null && connection.isConnected()) {
-            connection.logout();
+        if (conn != null && conn.isConnected()) {
+            conn.logout();
         }
-        chat.dispose();
+        frame.dispose();
     }
 
-    // === helper methods ===
+    //=== helper methods ===
 
-    private void addChatTab(String chatId, JPanel panel) {
-        for (int i = 0; i < chatTabs.getTabCount(); i++) {
-            if (chatTabs.getComponentAt(i) == panel) {
-                chatTabs.setSelectedIndex(i);
+    private void addChatTab(String id, JPanel panel) {
+        for (int i = 0; i < tabs.getTabCount(); i++) {
+            if (tabs.getComponentAt(i) == panel) {
+                tabs.setSelectedIndex(i);
                 return;
             }
         }
-        chatTabs.addTab(sessionTitle(chatId), panel);
-        chatTabs.setSelectedComponent(panel);
+        tabs.addTab(getTitle(id), panel);
+        tabs.setSelectedComponent(panel);
     }
 
-    private String sessionTitle(String chatId) {
-        ChatSession session = sessionsByChatId.get(chatId);
+    private String getTitle(String id) {
+        ChatSession session = sessions.get(id);
         if (session != null) {
             return session.getChatName();
         }
-        return displayNameForChat(chatId);
+        return getName(id);
     }
 
-    private String displayNameForChat(String chatId) {
-        if (chatId == null || chatId.isEmpty()) {
+    private String getName(String id) {
+        if (id == null || id.isEmpty()) {
             return "";
         }
-        ChatSession session = sessionsByChatId.get(chatId);
+        ChatSession session = sessions.get(id);
         if (session != null && session.getChatName() != null && !session.getChatName().isEmpty()) {
             return session.getChatName();
         }
-        return chatId;
+        return id;
     }
 
     private JPanel buildHeader() {
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(WA_HEADER);
-        header.setBorder(BorderFactory.createEmptyBorder(16, 20, 16, 20));
-        currentUserLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        currentUserLabel.setForeground(Color.WHITE);
-        String label = currentUser == null
+        JPanel hdr = new JPanel(new BorderLayout());
+        hdr.setBackground(WA_HEADER);
+        hdr.setBorder(BorderFactory.createEmptyBorder(16, 20, 16, 20));
+        userLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        userLabel.setForeground(Color.WHITE);
+        String lbl = user == null
                 ? "Unknown"
-                : currentUser.getUsername() + " • " + currentUser.getRole();
-        currentUserLabel.setText(label);
-        header.add(currentUserLabel, BorderLayout.WEST);
-        return header;
+                : user.getUsername() + " • " + user.getRole();
+        userLabel.setText(lbl);
+        hdr.add(userLabel, BorderLayout.WEST);
+        return hdr;
     }
 
     private JPanel buildLeftPanel() {
@@ -669,11 +671,11 @@ public class ClientGUI {
         searchLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
         searchLabel.setForeground(new Color(110, 128, 115));
         searchPanel.add(searchLabel, BorderLayout.NORTH);
-        searchPanel.add(searchBar, BorderLayout.CENTER);
+        searchPanel.add(search, BorderLayout.CENTER);
 
-        usersList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        usersList.setCellRenderer(new ContactRenderer());
-        JScrollPane listScroll = new JScrollPane(usersList);
+        userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        userList.setCellRenderer(new ContactRenderer());
+        JScrollPane listScroll = new JScrollPane(userList);
         listScroll.setBorder(BorderFactory.createEmptyBorder());
 
         JPanel buttonPanel = new JPanel(new GridBagLayout());
@@ -684,14 +686,14 @@ public class ClientGUI {
         gbc.weightx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(4, 0, 4, 0);
-        styleSecondaryButton(createGroupButton);
-        styleSecondaryButton(viewLogsButton);
-        styleSecondaryButton(logoutButton);
-        buttonPanel.add(createGroupButton, gbc);
+        styleSecondaryButton(groupBtn);
+        styleSecondaryButton(logsBtn);
+        styleSecondaryButton(logoutBtn);
+        buttonPanel.add(groupBtn, gbc);
         gbc.gridy = 1;
-        buttonPanel.add(viewLogsButton, gbc);
+        buttonPanel.add(logsBtn, gbc);
         gbc.gridy = 2;
-        buttonPanel.add(logoutButton, gbc);
+        buttonPanel.add(logoutBtn, gbc);
 
         left.add(searchPanel, BorderLayout.NORTH);
         left.add(listScroll, BorderLayout.CENTER);
@@ -700,10 +702,10 @@ public class ClientGUI {
     }
 
     private JPanel buildChatArea() {
-        chatTabs.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        chatTabs.setBackground(Color.WHITE);
-        chatTabs.setBorder(BorderFactory.createEmptyBorder());
-        chatTabs.setUI(new BasicTabbedPaneUI() {
+        tabs.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        tabs.setBackground(Color.WHITE);
+        tabs.setBorder(BorderFactory.createEmptyBorder());
+        tabs.setUI(new BasicTabbedPaneUI() {
             @Override
             protected int calculateTabAreaHeight(int tabPlacement, int runCount, int maxTabHeight) {
                 return 0;
@@ -711,7 +713,7 @@ public class ClientGUI {
         });
         return new JPanel(new BorderLayout()) {
             {
-                add(chatTabs, BorderLayout.CENTER);
+                add(tabs, BorderLayout.CENTER);
             }
         };
     }
@@ -720,38 +722,38 @@ public class ClientGUI {
         JPanel statusBar = new JPanel(new BorderLayout());
         statusBar.setBackground(WA_PANEL);
         statusBar.setBorder(BorderFactory.createEmptyBorder(0, 16, 12, 16));
-        statusLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        statusLabel.setForeground(new Color(74, 84, 82));
-        statusBar.add(statusLabel, BorderLayout.WEST);
+        status.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        status.setForeground(new Color(74, 84, 82));
+        statusBar.add(status, BorderLayout.WEST);
         return statusBar;
     }
 
     private void bindActions() {
-        searchBar.getDocument().addDocumentListener(new DocumentListener() {
-            @Override public void insertUpdate(DocumentEvent e) { filterUserList(searchBar.getText()); }
-            @Override public void removeUpdate(DocumentEvent e) { filterUserList(searchBar.getText()); }
-            @Override public void changedUpdate(DocumentEvent e) { filterUserList(searchBar.getText()); }
+        search.getDocument().addDocumentListener(new DocumentListener() {
+            @Override public void insertUpdate(DocumentEvent e) { filterUsers(search.getText()); }
+            @Override public void removeUpdate(DocumentEvent e) { filterUsers(search.getText()); }
+            @Override public void changedUpdate(DocumentEvent e) { filterUsers(search.getText()); }
         });
 
-        usersList.addMouseListener(new MouseAdapter() {
+        userList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 1) {
-                    User selected = usersList.getSelectedValue();
+                    User selected = userList.getSelectedValue();
                     if (selected != null) {
-                        openChatForContact(selected);
+                        openFor(selected);
                     }
                 }
             }
         });
 
-        createGroupButton.addActionListener(this::handleCreateGroup);
-        viewLogsButton.addActionListener(e -> viewChatLogsDialog());
-        logoutButton.addActionListener(e -> logout(currentUser));
+        groupBtn.addActionListener(this::handleCreateGroup);
+        logsBtn.addActionListener(e -> showLogs());
+        logoutBtn.addActionListener(e -> logout(user));
     }
 
     private void handleCreateGroup(ActionEvent e) {
-        createGroupChatDialog();
+        showGroupDialog();
     }
 
     private void styleSecondaryButton(JButton button) {
@@ -764,132 +766,131 @@ public class ClientGUI {
         ));
     }
 
-    private boolean addGroupContact(String groupName, boolean anyOnline) {
-        if (groupName == null || groupName.isEmpty()) {
+    private boolean addGroup(String name, boolean online) {
+        if (name == null || name.isEmpty()) {
             return false;
         }
-        for (User user : cachedUsers) {
-            if (groupName.equals(user.getUsername())) {
-                user.setStatus(anyOnline ? OnlineStatus.ONLINE : OnlineStatus.OFFLINE);
-                usersList.repaint();
+        for (User u : cached) {
+            if (name.equals(u.getUsername())) {
+                u.setStatus(online ? OnlineStatus.ONLINE : OnlineStatus.OFFLINE);
+                userList.repaint();
                 return false;
             }
         }
-        User groupUser = new User(groupName, "", UserRole.GENERAL);
-        groupUser.setStatus(anyOnline ? OnlineStatus.ONLINE : OnlineStatus.OFFLINE);
-        cachedUsers.add(groupUser);
-        if (usersList.getModel() instanceof DefaultListModel) {
-            @SuppressWarnings("unchecked")
-            DefaultListModel<User> model = (DefaultListModel<User>) usersList.getModel();
-            model.addElement(groupUser);
+        User grp = new User(name, "", UserRole.GENERAL);
+        grp.setStatus(online ? OnlineStatus.ONLINE : OnlineStatus.OFFLINE);
+        cached.add(grp);
+        if (userList.getModel() instanceof DefaultListModel) {
+            DefaultListModel<User> mdl = (DefaultListModel<User>) userList.getModel();
+            mdl.addElement(grp);
         }
         return true;
     }
 
-    private void showGroupMembersDialog(String groupName) {
-        List<User> members = groupMembers.get(groupName);
-        if (members == null || members.isEmpty()) {
-            JOptionPane.showMessageDialog(chat, "No members recorded for this group.");
+    private void showMembers(String name) {
+        List<User> mems = groups.get(name);
+        if (mems == null || mems.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "No members recorded for this group.");
             return;
         }
-        StringBuilder builder = new StringBuilder();
-        builder.append("Members of ").append(groupName).append(":\n\n");
-        User admin = members.get(0);
-        for (User member : members) {
-            builder.append("- ").append(member.getUsername());
-            if (member.equals(admin)) {
-                builder.append(" (admin)");
+        StringBuilder sb = new StringBuilder();
+        sb.append("Members of ").append(name).append(":\n\n");
+        User adm = mems.get(0);
+        for (User m : mems) {
+            sb.append("- ").append(m.getUsername());
+            if (m.equals(adm)) {
+                sb.append(" (admin)");
             }
-            builder.append('\n');
+            sb.append('\n');
         }
-        JOptionPane.showMessageDialog(chat, builder.toString(), "Group Members", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(frame, sb.toString(), "Group Members", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private String normalize(String raw) {
         return raw == null ? "" : raw.trim().replaceAll("\\s+", "_").toLowerCase();
     }
 
-    private boolean hasAnyOtherOnline(List<User> members) {
-        if (members == null) {
+    private boolean hasOtherOnline(List<User> mems) {
+        if (mems == null) {
             return false;
         }
-        for (User member : members) {
-            if (member == null || currentUser == null) {
+        for (User m : mems) {
+            if (m == null || user == null) {
                 continue;
             }
-            if (!member.getUserID().equals(currentUser.getUserID()) && member.getStatus() == OnlineStatus.ONLINE) {
+            if (!m.getUserID().equals(user.getUserID()) && m.getStatus() == OnlineStatus.ONLINE) {
                 return true;
             }
         }
         return false;
     }
 
-    private String registerSession(ChatSession session) {
+    private String register(ChatSession session) {
         if (session == null) {
             return "";
         }
-        sessionsByChatId.putIfAbsent(session.getChatID(), session);
+        sessions.putIfAbsent(session.getChatID(), session);
         return session.getChatID();
     }
 
-    private void registerSessionWithKey(ChatSession session, String key) {
+    private void registerKey(ChatSession session, String key) {
         if (session == null) {
             return;
         }
-        String chatId = registerSession(session);
+        String id = register(session);
         if (key != null && !key.isEmpty()) {
-            chatIdsByKey.put(key, chatId);
+            keys.put(key, id);
         }
     }
 
-    private void openChatForContact(User contact) {
+    private void openFor(User contact) {
         if (contact == null) {
             return;
         }
         String name = contact.getUsername();
-        boolean isGroupContact = groupMembers.containsKey(name);
+        boolean isGroupContact = groups.containsKey(name);
         String key = isGroupContact ? "group:" + normalize(name) : "priv:" + contact.getUserID();
-        String chatId = chatIdsByKey.get(key);
+        String id = keys.get(key);
 
-        // Check if chat is already open
-        if (chatId != null && isChatActive(chatId)) {
-            selectChatTab(chatId);
+        //Check if chat is already open
+        if (id != null && isOpen(id)) {
+            selectTab(id);
             return;
         }
 
-        // Check if session exists but window not open
-        if (chatId != null) {
-            ChatSession session = sessionsByChatId.get(chatId);
-            if (session != null) {
-                openChatWindow(session);
+        //Check if session exists but window not open
+        if (id != null) {
+            ChatSession sess = sessions.get(id);
+            if (sess != null) {
+                openChat(sess);
                 return;
             }
         }
 
-        // If no existing session, start a new chat
+        //If no existing session, start a new chat
         if (isGroupContact) {
-            // For group chats, request session from server
-            List<User> members = groupMembers.get(name);
-            if (members != null && connection != null && connection.isConnected()) {
-                connection.createSession(members, true, name);
+            //For group chats, request session from server
+            List<User> mems = groups.get(name);
+            if (mems != null && conn != null && conn.isConnected()) {
+                conn.create(mems, true, name);
             }
         } else {
-            // For private chats, request session from server
-            startPrivateChat(contact);
+            //For private chats, request session from server
+            startPrivate(contact);
         }
     }
 
-    private void selectChatTab(String chatId) {
-        JTextArea area = chatAreas.get(chatId);
+    private void selectTab(String id) {
+        JTextArea area = areas.get(id);
         if (area == null) {
             return;
         }
-        for (int i = 0; i < chatTabs.getTabCount(); i++) {
-            Component comp = chatTabs.getComponentAt(i);
+        for (int i = 0; i < tabs.getTabCount(); i++) {
+            Component comp = tabs.getComponentAt(i);
             if (comp instanceof JPanel) {
                 JPanel panel = (JPanel) comp;
                 if (panel.isAncestorOf(area)) {
-                    chatTabs.setSelectedIndex(i);
+                    tabs.setSelectedIndex(i);
                     return;
                 }
             }
@@ -922,11 +923,11 @@ public class ClientGUI {
                                                       boolean isSelected, boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             if (value instanceof User) {
-                User user = (User) value;
-                label.setText(user.getUsername());
+                User u = (User) value;
+                label.setText(u.getUsername());
                 label.setOpaque(true);
                 label.setBackground(isSelected ? new Color(202, 231, 217) : new Color(236, 229, 221));
-                label.setForeground(user.getStatus() == OnlineStatus.ONLINE ? new Color(37, 131, 59) : Color.BLACK);
+                label.setForeground(u.getStatus() == OnlineStatus.ONLINE ? new Color(37, 131, 59) : Color.BLACK);
                 label.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(new Color(207, 210, 207)),
                         BorderFactory.createEmptyBorder(6, 8, 6, 8)

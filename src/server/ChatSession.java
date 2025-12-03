@@ -16,12 +16,12 @@ public class ChatSession implements Serializable {
 	private List<Message> messages;
 	private boolean isGroup;
 
-	// Creating a unique ID for each chat
+	//Creating a unique ID for each chat
 	private String generateChatID(){
 		return UUID.randomUUID().toString();
 	}
 
-	// Constructor for brand new session
+	//Constructor for brand new session
 	public ChatSession(List<User> participants, boolean isGroup, String chatName) {
 		this.chatID = generateChatID();
 		this.chatName = chatName == null || chatName.isEmpty() ? "" : chatName;
@@ -30,7 +30,7 @@ public class ChatSession implements Serializable {
 		this.isGroup = isGroup;
 	}
 
-	// Constructor used when loading an existing session from log file (to preserve chat ID)
+	//Constructor used when loading an existing session from log file (to preserve chat ID)
 	public ChatSession(String chatID, List<User> participants, boolean isGroup, String chatName) {
 		this.chatID = chatID;
 		this.chatName = chatName == null || chatName.isEmpty() ? "" : chatName;
@@ -39,12 +39,12 @@ public class ChatSession implements Serializable {
 		this.isGroup = isGroup;
 	}
 
-	// Overloaded constructor with default empty chatName
+	//Overloaded constructor with default empty chatName
 	public ChatSession(List<User> participants, boolean isGroup) {
 		this(participants, isGroup, "");
 	}
 
-	// Add a message to the chat
+	//Add a message to the chat
 	public void addMessage(Message message) {
 		if (message == null) {
 			return;
@@ -52,7 +52,7 @@ public class ChatSession implements Serializable {
 		messages.add(message);
 	}
 
-	// Add a user to a group chat
+	//Add a user to a group chat
 	public void addParticipant(User user) {
 		if (user == null) {
 			return;
@@ -65,18 +65,18 @@ public class ChatSession implements Serializable {
 		}
 	}
 
-	// Remove a participant from the chat
+	//Remove a participant from the chat
 	public void removeParticipant(User user) {
 		if (user != null) {
 			participants.remove(user);
-			// Auto-update isGroup if 2 or fewer participants
+			//Auto-update isGroup if 2 or fewer participants
 			if (participants.size() <= 2) {
 				isGroup = false;
 			}
 		}
 	}
 
-	// Getters
+	//Getters
 	public String getChatID() {
 		return chatID;
 	}

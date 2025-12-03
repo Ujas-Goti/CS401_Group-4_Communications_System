@@ -13,15 +13,15 @@ import common.User;
 import server.ChatSession;
 
 public class ClientConnection {
-    private Socket socket;
-    private ObjectInputStream input;
-    private ObjectOutputStream output;
-    private String serverHost;
-    private int serverPort;
-    private AtomicBoolean connected;
-    private Thread listenerThread;
-    private MessageListener messageListener;
-    private User loggedInUser;
+    private Socket sock;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
+    private String host;
+    private int port;
+    private AtomicBoolean conn;
+    private Thread thread;
+    private MessageListener listener;
+    private User user;
 
     public interface MessageListener {
         void onMessageReceived(Message message);
@@ -32,20 +32,20 @@ public class ClientConnection {
         void onChatLogsReceived(String logContent);
     }
 
-    public ClientConnection(String serverHost, int serverPort) {
-        this.serverHost = serverHost;
-        this.serverPort = serverPort;
-        this.connected = new AtomicBoolean(false);
+    public ClientConnection(String host, int port) {
+        this.host = host;
+        this.port = port;
+        this.conn = new AtomicBoolean(false);
     }
 
     public boolean connect() {
         try {
-            socket = new Socket(serverHost, serverPort);
-            output = new ObjectOutputStream(socket.getOutputStream());
-            output.flush();
-            input = new ObjectInputStream(socket.getInputStream());
-            connected.set(true);
-            // Don't start listener thread yet - wait until after login
+            sock = new Socket(host, port);
+            out = new ObjectOutputStream(sock.getOutputStream());
+            out.flush();
+            in = new ObjectInputStream(sock.getInputStream());
+            conn.set(true);
+            //Don't start listener thread yet - wait until after login
 
             return true;
         } catch (IOException e) {
@@ -54,11 +54,11 @@ public class ClientConnection {
         }
     }
 
-    public void startListenerThread() {
-        if (listenerThread == null || !listenerThread.isAlive()) {
-            listenerThread = new Thread(this::listenForMessages);
-            listenerThread.setDaemon(true);
-            listenerThread.start();
+    public void startListener() {
+        if (thread == null || !thread.isAlive()) {
+            thread = new Thread(this::listen);
+            thread.setDaemon(true);
+            thread.start();
             System.out.println("Client: Started message listener thread");
         }
     }
@@ -66,7 +66,7 @@ public class ClientConnection {
     public boolean login(String username, String password) {
         System.out.println("Client: Starting login for user: " + username);
 
-        if (!connected.get()) {
+        if (!conn.get()) {
             System.out.println("Client: Not connected, attempting to connect...");
             if (!connect()) {
                 System.out.println("Client: Connection failed");
@@ -77,59 +77,59 @@ public class ClientConnection {
 
         try {
             System.out.println("Client: Sending login command...");
-            output.writeObject("LOGIN:" + username + ":" + password);
-            output.flush();
+            out.writeObject("LOGIN:" + username + ":" + password);
+            out.flush();
             System.out.println("Client: Login command sent, waiting for response...");
 
-            Object response = input.readObject();
-            System.out.println("Client: Received response: " + response + " (type: " + (response != null ? response.getClass().getName() : "null") + ")");
+            Object resp = in.readObject();
+            System.out.println("Client: Received response: " + resp + " (type: " + (resp != null ? resp.getClass().getName() : "null") + ")");
 
-            if (response instanceof String && ((String) response).startsWith("LOGIN_SUCCESS:")) {
+            if (resp instanceof String && ((String) resp).startsWith("LOGIN_SUCCESS:")) {
                 System.out.println("Client: LOGIN_SUCCESS received!");
                 try {
-                    // Read the User object from server
-                    Object userObj = input.readObject();
-                    if (userObj instanceof User) {
-                        this.loggedInUser = (User) userObj;
-                        System.out.println("Client: Received user object: " + this.loggedInUser.getUsername());
+                    //Read the User object from server
+                    Object uObj = in.readObject();
+                    if (uObj instanceof User) {
+                        this.user = (User) uObj;
+                        System.out.println("Client: Received user object: " + this.user.getUsername());
                     } else {
-                        System.out.println("Client: Warning - Expected User object but got: " + (userObj != null ? userObj.getClass().getName() : "null"));
+                        System.out.println("Client: Warning - Expected User object but got: " + (uObj != null ? uObj.getClass().getName() : "null"));
                     }
 
-                    // Read sessions
-                    Object sessionsObj = input.readObject();
-                    if (sessionsObj instanceof List) {
+                    //Read sessions
+                    Object sessObj = in.readObject();
+                    if (sessObj instanceof List) {
                         @SuppressWarnings("unchecked")
-                        List<ChatSession> sessions = (List<ChatSession>) sessionsObj;
-                        System.out.println("Client: Received " + sessions.size() + " sessions");
+                        List<ChatSession> sess = (List<ChatSession>) sessObj;
+                        System.out.println("Client: Received " + sess.size() + " sessions");
 
-                        // Process sessions if listener is set
-                        if (messageListener != null) {
-                            for (ChatSession session : sessions) {
-                                List<Message> history = new ArrayList<>();
-                                messageListener.onSessionReceived(session, history);
+                        //Process sessions if listener is set
+                        if (listener != null) {
+                            for (ChatSession s : sess) {
+                                List<Message> hist = new ArrayList<>();
+                                listener.onSessionReceived(s, hist);
                             }
                         }
                     } else {
-                        System.out.println("Client: Warning - Expected List but got: " + (sessionsObj != null ? sessionsObj.getClass().getName() : "null"));
+                        System.out.println("Client: Warning - Expected List but got: " + (sessObj != null ? sessObj.getClass().getName() : "null"));
                     }
                     System.out.println("Client: Login successful");
-                    // Don't start listener thread here - let ClientGUI start it after setting message listener
+                    //Don't start listener thread here - let ClientGUI start it after setting message listener
                     return true;
                 } catch (Exception e) {
                     System.err.println("Client: Error reading login response data: " + e.getMessage());
                     e.printStackTrace();
-                    // Still return true if we got LOGIN_SUCCESS and at least the user object
-                    if (this.loggedInUser != null) {
+                    //Still return true if we got LOGIN_SUCCESS and at least the user object
+                    if (this.user != null) {
                         return true;
                     }
                     return false;
                 }
-            } else if (response instanceof String && ((String) response).equals("LOGIN_FAILED")) {
+            } else if (resp instanceof String && ((String) resp).equals("LOGIN_FAILED")) {
                 System.out.println("Client: Login failed - server rejected credentials");
                 return false;
             } else {
-                System.out.println("Client: Unexpected response: " + response + " (class: " + (response != null ? response.getClass().getName() : "null") + ")");
+                System.out.println("Client: Unexpected response: " + resp + " (class: " + (resp != null ? resp.getClass().getName() : "null") + ")");
                 return false;
             }
         } catch (IOException e) {
@@ -147,80 +147,80 @@ public class ClientConnection {
         }
     }
 
-    public void sendMessage(Message message) {
-        if (!connected.get() || output == null) {
+    public void send(Message msg) {
+        if (!conn.get() || out == null) {
 			return;
 		}
 
         try {
-            output.writeObject(message);
-            output.flush();
+            out.writeObject(msg);
+            out.flush();
         } catch (IOException e) {
             System.err.println("Failed to send message: " + e.getMessage());
         }
     }
 
-    public void requestUserList() {
-        if (!connected.get() || output == null) {
+    public void requestUsers() {
+        if (!conn.get() || out == null) {
 			return;
 		}
 
         try {
-            output.writeObject("GET_USER_LIST");
-            output.flush();
+            out.writeObject("GET_USER_LIST");
+            out.flush();
         } catch (IOException e) {
             System.err.println("Failed to request user list: " + e.getMessage());
         }
     }
 
-    public void requestAllUsers() {
-        if (!connected.get() || output == null) {
+    public void requestAll() {
+        if (!conn.get() || out == null) {
 			return;
 		}
 
         try {
-            output.writeObject("GET_ALL_USERS");
-            output.flush();
+            out.writeObject("GET_ALL_USERS");
+            out.flush();
         } catch (IOException e) {
             System.err.println("Failed to request all users: " + e.getMessage());
         }
     }
 
-    public void requestChatLogs() {
-        if (!connected.get() || output == null) {
+    public void requestLogs() {
+        if (!conn.get() || out == null) {
 			return;
 		}
 
         try {
-            output.writeObject("GET_CHAT_LOGS");
-            output.flush();
+            out.writeObject("GET_CHAT_LOGS");
+            out.flush();
         } catch (IOException e) {
             System.err.println("Failed to request chat logs: " + e.getMessage());
         }
     }
 
-    public void createSession(List<User> participants, boolean isGroup, String chatName) {
-        if (!connected.get() || output == null) {
+    public void create(List<User> parts, boolean isGrp, String name) {
+        if (!conn.get() || out == null) {
 			return;
 		}
 
         try {
-            server.Server.SessionRequest request = new server.Server.SessionRequest(participants, isGroup, chatName);
-            output.writeObject(request);
-            output.flush();
+            server.Server.SessionRequest req = new server.Server.SessionRequest(parts, isGrp, name);
+            out.writeObject(req);
+            out.flush();
         } catch (IOException e) {
             System.err.println("Failed to create session: " + e.getMessage());
         }
     }
 
     public void logout() {
-        if (!connected.get() || output == null) {
+        if (!conn.get() || out == null) {
 			return;
 		}
 
         try {
-            output.writeObject("LOGOUT");
-            output.flush();
+            out.writeObject("LOGOUT");
+            out.flush();
         } catch (IOException e) {
             System.err.println("Failed to logout: " + e.getMessage());
         }
@@ -228,96 +228,96 @@ public class ClientConnection {
     }
 
     public void disconnect() {
-        connected.set(false);
+        conn.set(false);
         try {
-            if (input != null) {
-				input.close();
+            if (in != null) {
+				in.close();
 			}
-            if (output != null) {
-				output.close();
+            if (out != null) {
+				out.close();
 			}
-            if (socket != null) {
-				socket.close();
+            if (sock != null) {
+				sock.close();
 			}
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void setMessageListener(MessageListener listener) {
-        this.messageListener = listener;
+    public void setListener(MessageListener lst) {
+        this.listener = lst;
     }
 
-    private void listenForMessages() {
+    private void listen() {
         try {
-            while (connected.get()) {
-                Object obj = input.readObject();
+            while (conn.get()) {
+                Object obj = in.readObject();
 
                 if (obj instanceof Message) {
-                    if (messageListener != null) {
-                        messageListener.onMessageReceived((Message) obj);
+                    if (listener != null) {
+                        listener.onMessageReceived((Message) obj);
                     }
                 } else if (obj instanceof String) {
-                    String command = (String) obj;
-                    if (command.equals("USER_LIST_UPDATE")) {
-                        Object usersObj = input.readObject();
-                        if (usersObj instanceof List && messageListener != null) {
+                    String cmd = (String) obj;
+                    if (cmd.equals("USER_LIST_UPDATE")) {
+                        Object uObj = in.readObject();
+                        if (uObj instanceof List && listener != null) {
                             @SuppressWarnings("unchecked")
-                            List<User> users = (List<User>) usersObj;
-                            messageListener.onUserListUpdated(users);
+                            List<User> us = (List<User>) uObj;
+                            listener.onUserListUpdated(us);
                         }
-                    } else if (command.equals("ALL_USERS_LIST")) {
-                        Object usersObj = input.readObject();
-                        if (usersObj instanceof List && messageListener != null) {
+                    } else if (cmd.equals("ALL_USERS_LIST")) {
+                        Object uObj = in.readObject();
+                        if (uObj instanceof List && listener != null) {
                             @SuppressWarnings("unchecked")
-                            List<User> users = (List<User>) usersObj;
-                            messageListener.onAllUsersReceived(users);
+                            List<User> us = (List<User>) uObj;
+                            listener.onAllUsersReceived(us);
                         }
-                    } else if (command.equals("CHAT_LOGS_DATA")) {
-                        Object logContentObj = input.readObject();
-                        if (logContentObj instanceof String && messageListener != null) {
-                            messageListener.onChatLogsReceived((String) logContentObj);
+                    } else if (cmd.equals("CHAT_LOGS_DATA")) {
+                        Object logObj = in.readObject();
+                        if (logObj instanceof String && listener != null) {
+                            listener.onChatLogsReceived((String) logObj);
                         }
-                    } else if (command.equals("LOG_ACCESS_DENIED")) {
-                        if (messageListener != null) {
-                            messageListener.onChatLogsReceived("Access denied: Admin privileges required.");
+                    } else if (cmd.equals("LOG_ACCESS_DENIED")) {
+                        if (listener != null) {
+                            listener.onChatLogsReceived("Access denied: Admin privileges required.");
                         }
-                    } else if (command.startsWith("NEW_SESSION:")) {
-                        String chatID = command.substring(12);
-                        if (messageListener != null) {
-                            messageListener.onNewSessionNotification(chatID);
+                    } else if (cmd.startsWith("NEW_SESSION:")) {
+                        String id = cmd.substring(12);
+                        if (listener != null) {
+                            listener.onNewSessionNotification(id);
                         }
                     }
                 } else if (obj instanceof List) {
-                    // Handle direct user list response (for GET_USER_LIST)
-                    if (messageListener != null) {
+                    //Handle direct user list response (for GET_USER_LIST)
+                    if (listener != null) {
                         @SuppressWarnings("unchecked")
-                        List<User> users = (List<User>) obj;
-                        messageListener.onUserListUpdated(users);
+                        List<User> us = (List<User>) obj;
+                        listener.onUserListUpdated(us);
                     }
                 } else if (obj instanceof ChatSession) {
-                    ChatSession session = (ChatSession) obj;
-                    Object historyObj = input.readObject();
-                    if (historyObj instanceof List && messageListener != null) {
+                    ChatSession sess = (ChatSession) obj;
+                    Object histObj = in.readObject();
+                    if (histObj instanceof List && listener != null) {
                         @SuppressWarnings("unchecked")
-                        List<Message> history = (List<Message>) historyObj;
-                        messageListener.onSessionReceived(session, history);
+                        List<Message> hist = (List<Message>) histObj;
+                        listener.onSessionReceived(sess, hist);
                     }
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
-            if (connected.get()) {
+            if (conn.get()) {
                 System.err.println("Connection lost: " + e.getMessage());
             }
         }
     }
 
     public boolean isConnected() {
-        return connected.get();
+        return conn.get();
     }
 
-    public User getLoggedInUser() {
-        return loggedInUser;
+    public User getUser() {
+        return user;
     }
 }
 

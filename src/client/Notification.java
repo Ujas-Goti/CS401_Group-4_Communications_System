@@ -108,7 +108,7 @@ public class Notification {
 
     public void triggerSystemTrayNotification() {
         if (SystemTray.isSupported() && !delivered) {
-            triggerNotification(); // placeholder; tray icon can be added later
+            triggerNotification(); //placeholder; tray icon can be added later
         }
     }
 }

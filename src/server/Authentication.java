@@ -23,8 +23,8 @@ public class Authentication {
         this.activeSessions = Collections.synchronizedList(new ArrayList<>());
     }
 
-    // Validate username/password against the credential text file
-    // Expected file format: username,password,role
+    //Validate username/password against the credential text file
+    //Expected file format: username,password,role
     public User validateCredentials(String username, String password) {
         if (username == null || password == null || username.trim().isEmpty()) {
             System.out.println("Authentication: Invalid input - username or password is null/empty");
@@ -42,12 +42,12 @@ public class Authentication {
             String line;
 
             while ((line = reader.readLine()) != null) {
-                // Skip empty lines
+                //Skip empty lines
                 if (line.trim().isEmpty()) {
                     continue;
                 }
 
-                // Expected format: username,password,role
+                //Expected format: username,password,role
                 String[] parts = line.split(",");
 
                 if (parts.length < 3) {
@@ -63,12 +63,12 @@ public class Authentication {
                 System.out.println("Password match: " + filePassword.equals(password.trim()));
 
                 if (fileUsername.equals(username) && filePassword.equals(password)) {
-                    // Create a User object with role from UserRole enum
+                    //Create a User object with role from UserRole enum
                     UserRole role = UserRole.valueOf(fileRole.toUpperCase());
                     User user = new User(fileUsername, filePassword, role);
-                    // userID is automatically set to username in User constructor
+                    //userID is automatically set to username in User constructor
 
-                    // Mark as online
+                    //Mark as online
                     user.setStatus(OnlineStatus.ONLINE);
                     System.out.println("Authentication successful for: " + username);
                     return user;
@@ -84,10 +84,10 @@ public class Authentication {
         }
 
         System.out.println("Authentication failed for: " + username);
-        return null; 	// failed authentication
+        return null; 	//failed authentication
     }
 
-    // Get all registered users from credentials file (for group creation)
+    //Get all registered users from credentials file (for group creation)
     public List<User> getAllRegisteredUsers() {
         List<User> allUsers = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(credentialFile))) {
@@ -108,7 +108,7 @@ public class Authentication {
                     User user = new User(username, password, userRole);
                     allUsers.add(user);
                 } catch (IllegalArgumentException e) {
-                    // Skip invalid roles
+                    //Skip invalid roles
                 }
             }
         } catch (IOException e) {
@@ -117,12 +117,12 @@ public class Authentication {
         return allUsers;
     }
 
-    // Creates a new session for the user if not already logged in
-    // Returns sessionID as string
+    //Creates a new session for the user if not already logged in
+    //Returns sessionID as string
     public synchronized String createSession(User user) {
 
         if (checkStatus(user)) {
-            return null; 	// user is already logged in
+            return null; 	//user is already logged in
         }
 
         UserSession session = new UserSession(user);
@@ -130,7 +130,7 @@ public class Authentication {
         return Integer.toString(session.getSessionID());
     }
 
-    // Removes a session based on its ID
+    //Removes a session based on its ID
     public synchronized boolean endSession(String sessionID) {
 
         Iterator<UserSession> it = activeSessions.iterator();
@@ -147,7 +147,7 @@ public class Authentication {
         return false;
     }
 
-    // Returns true if user is already in an active session
+    //Returns true if user is already in an active session
     public synchronized boolean checkStatus(User user) {
         for (UserSession session : activeSessions) {
             if (session.getUser().getUserID().equals(user.getUserID())) {
@@ -157,7 +157,7 @@ public class Authentication {
         return false;
     }
 
-    // Getter for session by user ID if needed
+    //Getter for session by user ID if needed
     public synchronized UserSession getSessionFor(User user) {
         for (UserSession session : activeSessions) {
             if (session.getUser().getUserID().equals(user.getUserID())) {

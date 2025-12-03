@@ -45,7 +45,7 @@ public class ConnectionManager {
         threadPool.submit(() -> initializeClient(key, socket, user));
     }
 
-    // Register client with existing streams (to avoid creating duplicate streams)
+    //Register client with existing streams (to avoid creating duplicate streams)
     public void registerClientStreams(User user, ObjectInputStream input, ObjectOutputStream output, Socket socket) {
         ensureRunning();
         if (user == null || socket == null || input == null || output == null) {

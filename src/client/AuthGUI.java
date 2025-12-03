@@ -169,7 +169,7 @@ public class AuthGUI {
             return;
         }
 
-        // Create connection
+        //Create connection
         connection = new ClientConnection(host, port);
         if (!connection.connect()) {
             JOptionPane.showMessageDialog(frame,
@@ -179,15 +179,15 @@ public class AuthGUI {
             return;
         }
 
-        // Attempt login
+        //Attempt login
         if (connection.login(user, pass)) {
             frame.setVisible(false);
             frame.dispose();
 
-            // Get the actual User object from server (with correct role)
-            User loggedInUser = connection.getLoggedInUser();
+            //Get the actual User object from server (with correct role)
+            User loggedInUser = connection.getUser();
             if (loggedInUser == null) {
-                // Fallback if server didn't send User
+                //Fallback if server didn't send User
                 loggedInUser = new User(user, pass, UserRole.GENERAL);
             }
             initClientGUI(loggedInUser, connection);
@@ -204,6 +204,6 @@ public class AuthGUI {
     public void initClientGUI(User u, ClientConnection conn) {
         ClientGUI g1 = new ClientGUI(u, conn);
         this.clientGUI = g1;
-        g1.startManager();
+        g1.start();
     }
 }
