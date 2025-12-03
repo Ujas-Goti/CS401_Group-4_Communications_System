@@ -1,13 +1,18 @@
 package server;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.List;
-import common.User;
+import java.util.stream.Collectors;
+
 import common.Message;
+import common.User;
 import common.UserRole;
 
 public class Logger {
@@ -37,19 +42,22 @@ public class Logger {
         }
     }
 
-    
+
     // read all messages for a chat (filter by MESSAGE| prefix)
     public synchronized List<Message> getMessagesForChat(String chatID) {
         List<Message> messages = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {
             String line;
-            
+
             while ((line = br.readLine()) != null) {
-                if (!line.startsWith("MESSAGE|")) continue;
-                
+                if (!line.startsWith("MESSAGE|")) {
+					continue;
+				}
+
                 String[] parts = line.substring(8).split("\\|");
-                if (parts.length < 5) continue;
-                if (!parts[1].equals(chatID)) continue;
+                if ((parts.length < 5) || !parts[1].equals(chatID)) {
+					continue;
+				}
 
                 String messageID = parts[0];
                 String msgchatID = parts[1];
@@ -100,14 +108,20 @@ public class Logger {
         return lines;
     }
 
-    
+
     // get sessions containing a user
     public synchronized List<String> filterSessionsByUser(String userID) {
         return readAllSessions().stream().filter(line -> {
             String[] parts = line.split("\\|");
-            if (parts.length < 4) return false;
+            if (parts.length < 4) {
+				return false;
+			}
             String[] users = parts[3].split(",");
-            for (String u : users) if (u.equals(userID)) return true;
+            for (String u : users) {
+				if (u.equals(userID)) {
+					return true;
+				}
+			}
             return false;
         }).collect(Collectors.toList());
     }
@@ -118,12 +132,14 @@ public class Logger {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length < 3) continue;
+                if (parts.length < 3) {
+					continue;
+				}
                 if (parts[0].equals(userID)) {
                     String username = parts[0];
                     String password = parts[1];
                     UserRole role = UserRole.valueOf(parts[2].toUpperCase());
-                    
+
                     return new User(username, password, role);		// now updated to match new main User constructor (username, password, role)
                 }
             }

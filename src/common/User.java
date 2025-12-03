@@ -8,14 +8,14 @@ public class User implements Serializable {
 	private String password;
 	private UserRole role;
 	private OnlineStatus status = OnlineStatus.OFFLINE; // I think the default status for OnlineStatus should be OFFLINE. (Carlos O)
-	
+
 	public User(String username, String password, UserRole role) {
 		this.username = username;
 		this.password = password;
 		this.role = role;
 		this.userID = username;
 	}
-	
+
 	public String getUserID() {
         return userID;
     }
@@ -47,14 +47,18 @@ public class User implements Serializable {
     @Override
     public String toString() {
         return username;
-       
+
     }
-    
-    
+
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof User)) return false;
+        if (this == o) {
+			return true;
+		}
+        if (!(o instanceof User)) {
+			return false;
+		}
         User other = (User) o;
         return this.userID.equals(other.userID);
     }
@@ -63,5 +67,5 @@ public class User implements Serializable {
     public int hashCode() {
         return Objects.hash(userID);
     }
-    
+
 }

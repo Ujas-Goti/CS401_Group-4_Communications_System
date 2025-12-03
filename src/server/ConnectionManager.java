@@ -12,8 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
-import common.User;
+
 import common.OnlineStatus;
+import common.User;
 
 public class ConnectionManager {
     private final ExecutorService threadPool;
@@ -43,7 +44,7 @@ public class ConnectionManager {
         disconnectClient(user);
         threadPool.submit(() -> initializeClient(key, socket, user));
     }
-    
+
     // Register client with existing streams (to avoid creating duplicate streams)
     public void registerClientStreams(User user, ObjectInputStream input, ObjectOutputStream output, Socket socket) {
         ensureRunning();

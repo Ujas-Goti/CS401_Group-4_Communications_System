@@ -1,8 +1,7 @@
 package common;
 
-import java.time.LocalDateTime;
 import java.io.Serializable;
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 public class Message implements Serializable {
 	private final String messageID;
@@ -11,13 +10,13 @@ public class Message implements Serializable {
 	private final LocalDateTime timeStamp;
 	private final String content;
 	private Boolean messageSent;
-	
-	
+
+
 	private String generateMessageID() {
 		return java.util.UUID.randomUUID().toString();
 	}
-	
-	
+
+
 	public Message(String chatID, String senderID, String content) {
 		this.messageID = generateMessageID();
 		this.chatID = chatID;
@@ -26,7 +25,7 @@ public class Message implements Serializable {
 		this.content = content;
 		this.messageSent = true;
 	}
-	
+
 	//	Constructor for Looger to rebuild messages from log
 	public Message(String messageID, String chatID, String senderID, LocalDateTime timeStamp, String content) {
 		this.messageID = messageID;
@@ -35,13 +34,13 @@ public class Message implements Serializable {
 		this.timeStamp = timeStamp;
 		this.content = content;
 		//this.messageSent = messageSent;
-		
+
 	}
-	
+
 	public Boolean checkStatus() {
 		return messageSent;
 	}
-	
+
 	public String getChatID() {
 		return chatID;
 	}
@@ -54,7 +53,7 @@ public class Message implements Serializable {
 	public String getContent() {
 		return content;
 	}
-	
+
 	public String getMessageID() {
 		return messageID;
 	}

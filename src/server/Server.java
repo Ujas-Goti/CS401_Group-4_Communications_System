@@ -11,10 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import common.User;
+
 import common.Message;
-import common.UserRole;
-import common.OnlineStatus;
+import common.User;
 
 public class Server {
 
@@ -87,11 +86,27 @@ public class Server {
 
                     if (obj instanceof String) {
                         String command = (String) obj;
-                        handleCommand(command);
+                        try {
+                            handleCommand(command);
+                        } catch (Exception e) {
+                            System.err.println("Error handling command: " + command);
+                            e.printStackTrace();
+                            // Don't close connection, just log the error and continue
+                        }
                     } else if (obj instanceof Message) {
-                        handleMessage((Message) obj);
+                        try {
+                            handleMessage((Message) obj);
+                        } catch (Exception e) {
+                            System.err.println("Error handling message");
+                            e.printStackTrace();
+                        }
                     } else if (obj instanceof SessionRequest) {
-                        handleSessionRequest((SessionRequest) obj);
+                        try {
+                            handleSessionRequest((SessionRequest) obj);
+                        } catch (Exception e) {
+                            System.err.println("Error handling session request");
+                            e.printStackTrace();
+                        }
                     }
                 }
 
@@ -106,108 +121,154 @@ public class Server {
 
         private void handleCommand(String command) throws IOException {
             if (command.startsWith("LOGIN:")) {
-                String[] parts = command.substring(6).split(":");
-                System.out.println("Login attempt - parts length: " + parts.length);
-                if (parts.length >= 2) {
-                    String username = parts[0];
-                    // Handle case where password might contain colons
-                    String password = parts.length == 2 ? parts[1] : command.substring(6 + username.length() + 1);
-                    System.out.println("Attempting login for user: " + username);
-                    
-                    User user = authentication.validateCredentials(username, password);
-                    System.out.println("User validation result: " + (user != null ? "SUCCESS" : "FAILED"));
-                    
-                    if (user != null) {
-                        boolean alreadyLoggedIn = authentication.checkStatus(user);
-                        System.out.println("User already logged in: " + alreadyLoggedIn);
-                        
-                        if (!alreadyLoggedIn) {
-                            String sessionID = authentication.createSession(user);
-                            System.out.println("Session creation result: " + (sessionID != null ? "SUCCESS" : "FAILED"));
-                            
-                            if (sessionID != null) {
-                                currentUser = user;
-                                // Register the existing streams we already created
-                                connectionManager.registerClientStreams(user, input, output, socket);
-                                onlineUsers.put(user.getUserID(), user);
-                                output.writeObject("LOGIN_SUCCESS:" + user.getUserID());
-                                output.flush();
-                                
-                                // Send the actual User object with correct role
-                                output.writeObject(user);
-                                output.flush();
-                                
-                                // Send user's existing sessions
-                                List<ChatSession> sessions = chatManager.loadUserSessions(user);
-                                output.writeObject(sessions);
-                                output.flush();
-                                
-                                // Send user list immediately to the newly logged-in user
-                                List<User> users = new ArrayList<>(onlineUsers.values());
-                                output.writeObject("USER_LIST_UPDATE");
-                                output.writeObject(users);
-                                output.flush();
-                                
-                                // Broadcast updated user list to all other users
-                                broadcastUserList();
-                                System.out.println("Login successful for: " + username);
-                                return;
+                try {
+                    String[] parts = command.substring(6).split(":");
+                    System.out.println("Login attempt - parts length: " + parts.length);
+                    if (parts.length >= 2) {
+                        String username = parts[0];
+                        // Handle case where password might contain colons
+                        String password = parts.length == 2 ? parts[1] : command.substring(6 + username.length() + 1);
+                        System.out.println("Attempting login for user: " + username);
+
+                        User user = authentication.validateCredentials(username, password);
+                        System.out.println("User validation result: " + (user != null ? "SUCCESS" : "FAILED"));
+
+                        if (user != null) {
+                            boolean alreadyLoggedIn = authentication.checkStatus(user);
+                            System.out.println("User already logged in: " + alreadyLoggedIn);
+
+                            if (!alreadyLoggedIn) {
+                                String sessionID = authentication.createSession(user);
+                                System.out.println("Session creation result: " + (sessionID != null ? "SUCCESS" : "FAILED"));
+
+                                if (sessionID != null) {
+                                    currentUser = user;
+                                    // Register the existing streams we already created
+                                    try {
+                                        connectionManager.registerClientStreams(user, input, output, socket);
+                                        onlineUsers.put(user.getUserID(), user);
+                                    } catch (Exception e) {
+                                        System.err.println("Error registering client streams: " + e.getMessage());
+                                        e.printStackTrace();
+                                        throw new IOException("Failed to register client", e);
+                                    }
+                                    output.writeObject("LOGIN_SUCCESS:" + user.getUserID());
+                                    output.flush();
+
+                                    // Send the actual User object with correct role
+                                    output.writeObject(user);
+                                    output.flush();
+
+                                    // Send user's existing sessions
+                                    List<ChatSession> sessions = chatManager.loadUserSessions(user);
+                                    output.writeObject(sessions);
+                                    output.flush();
+
+                                    // Send user list immediately to the newly logged-in user
+                                    List<User> users = new ArrayList<>(onlineUsers.values());
+                                    output.writeObject("USER_LIST_UPDATE");
+                                    output.writeObject(users);
+                                    output.flush();
+
+                                    // Broadcast updated user list to all other users
+                                    broadcastUserList();
+                                    System.out.println("Login successful for: " + username);
+                                    return;
+                                } else {
+                                    System.out.println("Session creation returned null");
+                                }
                             } else {
-                                System.out.println("Session creation returned null");
+                                System.out.println("User is already logged in");
                             }
                         } else {
-                            System.out.println("User is already logged in");
+                            System.out.println("Invalid credentials for: " + username);
                         }
                     } else {
-                        System.out.println("Invalid credentials for: " + username);
+                        System.out.println("Invalid login command format. Expected LOGIN:username:password");
                     }
-                } else {
-                    System.out.println("Invalid login command format. Expected LOGIN:username:password");
+                } catch (Exception e) {
+                    System.err.println("Error during login handling: " + e.getMessage());
+                    e.printStackTrace();
                 }
-                output.writeObject("LOGIN_FAILED");
-                output.flush();
-                
+                // Always send LOGIN_FAILED if we reach here
+                try {
+                    output.writeObject("LOGIN_FAILED");
+                    output.flush();
+                } catch (IOException e) {
+                    System.err.println("Failed to send LOGIN_FAILED: " + e.getMessage());
+                    throw e;
+                }
+
             } else if (command.equals("GET_USER_LIST")) {
-                List<User> users = new ArrayList<>(onlineUsers.values());
-                output.writeObject("USER_LIST_UPDATE");
-                output.writeObject(users);
-                output.flush();
-                
-            } else if (command.equals("GET_ALL_USERS")) {
-                // Return all registered users from credentials file (for group creation)
-                List<User> allUsers = authentication.getAllRegisteredUsers();
-                output.writeObject("ALL_USERS_LIST");
-                output.writeObject(allUsers);
-                output.flush();
-                
-            } else if (command.equals("LOGOUT")) {
-                if (currentUser != null) {
-                    UserSession session = authentication.getSessionFor(currentUser);
-                    if (session != null) {
-                        authentication.endSession(session.getSessionID() + "");
+                try {
+                    if (socket != null && !socket.isClosed()) {
+                        List<User> users = new ArrayList<>(onlineUsers.values());
+                        output.writeObject("USER_LIST_UPDATE");
+                        output.writeObject(users);
+                        output.flush();
                     }
-                    connectionManager.disconnectClient(currentUser);
-                    onlineUsers.remove(currentUser.getUserID());
-                    broadcastUserList();
+                } catch (java.net.SocketException e) {
+                    System.out.println("Socket closed while sending user list");
+                } catch (IOException e) {
+                    System.err.println("Error sending user list: " + e.getMessage());
                 }
-                output.writeObject("LOGOUT_SUCCESS");
-                output.flush();
+
+            } else if (command.equals("GET_ALL_USERS")) {
+                try {
+                    if (socket != null && !socket.isClosed()) {
+                        // Return all registered users from credentials file (for group creation)
+                        List<User> allUsers = authentication.getAllRegisteredUsers();
+                        output.writeObject("ALL_USERS_LIST");
+                        output.writeObject(allUsers);
+                        output.flush();
+                    }
+                } catch (java.net.SocketException e) {
+                    System.out.println("Socket closed while sending all users");
+                } catch (IOException e) {
+                    System.err.println("Error sending all users: " + e.getMessage());
+                }
+
+            } else if (command.equals("LOGOUT")) {
+                try {
+                    // Send response BEFORE disconnecting
+                    if (output != null && socket != null && !socket.isClosed()) {
+                        output.writeObject("LOGOUT_SUCCESS");
+                        output.flush();
+                    }
+
+                    if (currentUser != null) {
+                        UserSession session = authentication.getSessionFor(currentUser);
+                        if (session != null) {
+                            authentication.endSession(session.getSessionID() + "");
+                        }
+                        connectionManager.disconnectClient(currentUser);
+                        onlineUsers.remove(currentUser.getUserID());
+                        broadcastUserList();
+                    }
+                } catch (java.net.SocketException e) {
+                    // Socket already closed, that's okay
+                    System.out.println("Socket closed during logout (expected)");
+                } catch (IOException e) {
+                    System.err.println("Error during logout: " + e.getMessage());
+                }
             }
         }
 
         private void handleMessage(Message message) throws IOException {
-            if (currentUser == null) return;
+            if (currentUser == null) {
+				return;
+			}
 
             // Add message to chat session and log it
             chatManager.receiveMessage(message);
-            
+
             // Get the chat session to check if it's a group
             ChatSession session = chatManager.getChatSession(message.getChatID());
             if (session == null) {
                 System.err.println("No session found for chatID: " + message.getChatID());
                 return;
             }
-            
+
             boolean isGroup = session.isGroup();
             List<User> targets = new ArrayList<>();
 
@@ -215,7 +276,7 @@ public class Server {
             if (isGroup) {
                 List<User> allParticipants = session.getParticipants();
                 Set<String> targetUserIDs = new java.util.HashSet<>();
-                
+
                 // Add all online participants who aren't the sender
                 for (User participant : allParticipants) {
                     if (!participant.getUserID().equals(message.getSenderID())) {
@@ -249,6 +310,9 @@ public class Server {
                         targetOut.writeObject(message);
                         targetOut.flush();
                         System.out.println("Sent message to " + target.getUserID());
+                    } catch (java.net.SocketException e) {
+                        // Socket closed, user disconnected
+                        System.out.println("User " + target.getUserID() + " disconnected");
                     } catch (IOException e) {
                         // User may have disconnected
                         System.err.println("Failed to send message to " + target.getUserID() + ": " + e.getMessage());
@@ -257,12 +321,22 @@ public class Server {
             }
 
             // Also send back to sender for confirmation
-            output.writeObject(message);
-            output.flush();
+            try {
+                if (socket != null && !socket.isClosed()) {
+                    output.writeObject(message);
+                    output.flush();
+                }
+            } catch (java.net.SocketException e) {
+                System.out.println("Socket closed while sending message confirmation");
+            } catch (IOException e) {
+                System.err.println("Error sending message confirmation: " + e.getMessage());
+            }
         }
 
         private void handleSessionRequest(SessionRequest request) throws IOException {
-            if (currentUser == null) return;
+            if (currentUser == null) {
+				return;
+			}
 
             List<User> participants = request.getParticipants();
             if (participants == null || participants.isEmpty()) {
@@ -295,10 +369,18 @@ public class Server {
             chatManager.joinSession(session.getChatID(), currentUser);
 
             // Load history and send to client
-            List<Message> history = chatManager.loadHistory(session.getChatID());
-            output.writeObject(session);
-            output.writeObject(history);
-            output.flush();
+            try {
+                if (socket != null && !socket.isClosed()) {
+                    List<Message> history = chatManager.loadHistory(session.getChatID());
+                    output.writeObject(session);
+                    output.writeObject(history);
+                    output.flush();
+                }
+            } catch (java.net.SocketException e) {
+                System.out.println("Socket closed while sending session");
+            } catch (IOException e) {
+                System.err.println("Error sending session: " + e.getMessage());
+            }
 
             // Notify other participants by sending them the session
             // Only send to online participants
@@ -312,9 +394,11 @@ public class Server {
                             try {
                                 // Send the session and empty history to other participants
                                 targetOut.writeObject(session);
-                                targetOut.writeObject(new ArrayList<Message>());
+                                targetOut.writeObject(new ArrayList<>());
                                 targetOut.flush();
                                 System.out.println("Sent session notification to " + onlineParticipant.getUserID());
+                            } catch (java.net.SocketException e) {
+                                System.out.println("Participant " + onlineParticipant.getUserID() + " disconnected");
                             } catch (IOException e) {
                                 // Participant may have disconnected
                                 System.err.println("Failed to notify " + onlineParticipant.getUserID() + ": " + e.getMessage());
@@ -334,8 +418,11 @@ public class Server {
                         out.writeObject("USER_LIST_UPDATE");
                         out.writeObject(users);
                         out.flush();
+                    } catch (java.net.SocketException e) {
+                        // Socket closed, user disconnected - that's okay
                     } catch (IOException e) {
                         // User may have disconnected
+                        System.err.println("Failed to broadcast user list to " + user.getUserID() + ": " + e.getMessage());
                     }
                 }
             }
@@ -352,9 +439,17 @@ public class Server {
                 broadcastUserList();
             }
             try {
-                if (input != null) input.close();
-                if (output != null) output.close();
-                if (socket != null) socket.close();
+                if (input != null) {
+                    input.close();
+                }
+                if (output != null && socket != null && !socket.isClosed()) {
+                    output.close();
+                }
+                if (socket != null && !socket.isClosed()) {
+                    socket.close();
+                }
+            } catch (java.net.SocketException e) {
+                // Socket already closed, ignore
             } catch (IOException e) {
                 e.printStackTrace();
             }

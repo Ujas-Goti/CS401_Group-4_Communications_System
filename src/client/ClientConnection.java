@@ -7,8 +7,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import common.User;
+
 import common.Message;
+import common.User;
 import server.ChatSession;
 
 public class ClientConnection {
@@ -51,7 +52,7 @@ public class ClientConnection {
             return false;
         }
     }
-    
+
     public void startListenerThread() {
         if (listenerThread == null || !listenerThread.isAlive()) {
             listenerThread = new Thread(this::listenForMessages);
@@ -63,7 +64,7 @@ public class ClientConnection {
 
     public boolean login(String username, String password) {
         System.out.println("Client: Starting login for user: " + username);
-        
+
         if (!connected.get()) {
             System.out.println("Client: Not connected, attempting to connect...");
             if (!connect()) {
@@ -81,7 +82,7 @@ public class ClientConnection {
 
             Object response = input.readObject();
             System.out.println("Client: Received response: " + response + " (type: " + (response != null ? response.getClass().getName() : "null") + ")");
-            
+
             if (response instanceof String && ((String) response).startsWith("LOGIN_SUCCESS:")) {
                 System.out.println("Client: LOGIN_SUCCESS received!");
                 try {
@@ -93,14 +94,14 @@ public class ClientConnection {
                     } else {
                         System.out.println("Client: Warning - Expected User object but got: " + (userObj != null ? userObj.getClass().getName() : "null"));
                     }
-                    
+
                     // Read sessions
                     Object sessionsObj = input.readObject();
                     if (sessionsObj instanceof List) {
                         @SuppressWarnings("unchecked")
                         List<ChatSession> sessions = (List<ChatSession>) sessionsObj;
                         System.out.println("Client: Received " + sessions.size() + " sessions");
-                        
+
                         // Process sessions if listener is set
                         if (messageListener != null) {
                             for (ChatSession session : sessions) {
@@ -146,7 +147,9 @@ public class ClientConnection {
     }
 
     public void sendMessage(Message message) {
-        if (!connected.get() || output == null) return;
+        if (!connected.get() || output == null) {
+			return;
+		}
 
         try {
             output.writeObject(message);
@@ -157,7 +160,9 @@ public class ClientConnection {
     }
 
     public void requestUserList() {
-        if (!connected.get() || output == null) return;
+        if (!connected.get() || output == null) {
+			return;
+		}
 
         try {
             output.writeObject("GET_USER_LIST");
@@ -166,9 +171,11 @@ public class ClientConnection {
             System.err.println("Failed to request user list: " + e.getMessage());
         }
     }
-    
+
     public void requestAllUsers() {
-        if (!connected.get() || output == null) return;
+        if (!connected.get() || output == null) {
+			return;
+		}
 
         try {
             output.writeObject("GET_ALL_USERS");
@@ -179,7 +186,9 @@ public class ClientConnection {
     }
 
     public void createSession(List<User> participants, boolean isGroup, String chatName) {
-        if (!connected.get() || output == null) return;
+        if (!connected.get() || output == null) {
+			return;
+		}
 
         try {
             server.Server.SessionRequest request = new server.Server.SessionRequest(participants, isGroup, chatName);
@@ -191,7 +200,9 @@ public class ClientConnection {
     }
 
     public void logout() {
-        if (!connected.get() || output == null) return;
+        if (!connected.get() || output == null) {
+			return;
+		}
 
         try {
             output.writeObject("LOGOUT");
@@ -205,9 +216,15 @@ public class ClientConnection {
     public void disconnect() {
         connected.set(false);
         try {
-            if (input != null) input.close();
-            if (output != null) output.close();
-            if (socket != null) socket.close();
+            if (input != null) {
+				input.close();
+			}
+            if (output != null) {
+				output.close();
+			}
+            if (socket != null) {
+				socket.close();
+			}
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -275,7 +292,7 @@ public class ClientConnection {
     public boolean isConnected() {
         return connected.get();
     }
-    
+
     public User getLoggedInUser() {
         return loggedInUser;
     }

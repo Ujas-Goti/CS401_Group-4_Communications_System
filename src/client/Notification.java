@@ -1,19 +1,21 @@
 package client;
 
-import javax.swing.BorderFactory;
-import common.User;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+
+import common.User;
 
 public class Notification {
     private final String messageID;
@@ -27,7 +29,7 @@ public class Notification {
         this.delivered = false;
         this.senderName = "Someone";
     }
-    
+
     public void setSenderName(String senderName) {
         this.senderName = senderName != null ? senderName : "Someone";
     }

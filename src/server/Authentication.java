@@ -1,10 +1,17 @@
 package server;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+import common.OnlineStatus;
 import common.User;
 import common.UserRole;
-import common.OnlineStatus;
 
 public class Authentication {
 
@@ -39,7 +46,7 @@ public class Authentication {
                 if (line.trim().isEmpty()) {
                     continue;
                 }
-                
+
                 // Expected format: username,password,role
                 String[] parts = line.split(",");
 
@@ -61,7 +68,7 @@ public class Authentication {
                     User user = new User(fileUsername, filePassword, role);
                     // userID is automatically set to username in User constructor
 
-                    // Mark as online 
+                    // Mark as online
                     user.setStatus(OnlineStatus.ONLINE);
                     System.out.println("Authentication successful for: " + username);
                     return user;
@@ -79,7 +86,7 @@ public class Authentication {
         System.out.println("Authentication failed for: " + username);
         return null; 	// failed authentication
     }
-    
+
     // Get all registered users from credentials file (for group creation)
     public List<User> getAllRegisteredUsers() {
         List<User> allUsers = new ArrayList<>();
