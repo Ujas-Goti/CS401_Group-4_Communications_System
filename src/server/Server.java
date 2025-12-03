@@ -228,6 +228,29 @@ public class Server {
                     System.err.println("Error sending all users: " + e.getMessage());
                 }
 
+            } else if (command.equals("GET_CHAT_LOGS")) {
+                try {
+                    // Check if user is admin
+                    if (currentUser == null || currentUser.getRole() != common.UserRole.ADMIN) {
+                        if (socket != null && !socket.isClosed()) {
+                            output.writeObject("LOG_ACCESS_DENIED");
+                            output.flush();
+                        }
+                        return;
+                    }
+                    
+                    if (socket != null && !socket.isClosed()) {
+                        String logContent = logger.readAllLogs();
+                        output.writeObject("CHAT_LOGS_DATA");
+                        output.writeObject(logContent);
+                        output.flush();
+                    }
+                } catch (java.net.SocketException e) {
+                    System.out.println("Socket closed while sending chat logs");
+                } catch (IOException e) {
+                    System.err.println("Error sending chat logs: " + e.getMessage());
+                }
+
             } else if (command.equals("LOGOUT")) {
                 try {
                     // Send response BEFORE disconnecting

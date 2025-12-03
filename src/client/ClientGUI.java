@@ -205,6 +205,33 @@ public class ClientGUI {
                     // For now, the server sends the session when user opens it
                 });
             }
+            
+            @Override
+            public void onChatLogsReceived(String logContent) {
+                SwingUtilities.invokeLater(() -> {
+                    // Create dialog to display logs
+                    JDialog logDialog = new JDialog(chat, "Chat Logs", true);
+                    logDialog.setSize(800, 600);
+                    logDialog.setLocationRelativeTo(chat);
+                    
+                    JTextArea logArea = new JTextArea();
+                    logArea.setEditable(false);
+                    logArea.setFont(new Font("Courier New", Font.PLAIN, 12));
+                    logArea.setText(logContent);
+                    JScrollPane scrollPane = new JScrollPane(logArea);
+                    
+                    JButton closeButton = new JButton("Close");
+                    closeButton.addActionListener(e -> logDialog.dispose());
+                    
+                    JPanel panel = new JPanel(new BorderLayout());
+                    panel.add(new JLabel("Chat Log Contents:"), BorderLayout.NORTH);
+                    panel.add(scrollPane, BorderLayout.CENTER);
+                    panel.add(closeButton, BorderLayout.SOUTH);
+                    
+                    logDialog.add(panel);
+                    logDialog.setVisible(true);
+                });
+            }
         });
 
         // Start the listener thread now that message listener is set
@@ -530,45 +557,31 @@ public class ClientGUI {
             JOptionPane.showMessageDialog(chat, "Not connected to server.");
             return;
         }
-
+        
         // Create a dialog to view chat logs
         JDialog logDialog = new JDialog(chat, "Chat Logs", true);
         logDialog.setSize(800, 600);
         logDialog.setLocationRelativeTo(chat);
-
+        
         JTextArea logArea = new JTextArea();
         logArea.setEditable(false);
         logArea.setFont(new Font("Courier New", Font.PLAIN, 12));
+        logArea.setText("Loading logs from server...");
         JScrollPane scrollPane = new JScrollPane(logArea);
-
-        // Read chat log file
-        try {
-            java.io.File logFile = new java.io.File("data/chat_log.txt");
-            if (logFile.exists()) {
-                java.util.Scanner scanner = new java.util.Scanner(logFile);
-                StringBuilder content = new StringBuilder();
-                while (scanner.hasNextLine()) {
-                    content.append(scanner.nextLine()).append("\n");
-                }
-                scanner.close();
-                logArea.setText(content.toString());
-            } else {
-                logArea.setText("No log file found.");
-            }
-        } catch (Exception e) {
-            logArea.setText("Error reading log file: " + e.getMessage());
-        }
-
+        
         JButton closeButton = new JButton("Close");
         closeButton.addActionListener(e -> logDialog.dispose());
-
+        
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(new JLabel("Chat Log Contents:"), BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
         panel.add(closeButton, BorderLayout.SOUTH);
-
+        
         logDialog.add(panel);
         logDialog.setVisible(true);
+        
+        // Request logs from server
+        connection.requestChatLogs();
     }
 
     public void logout(User user) {

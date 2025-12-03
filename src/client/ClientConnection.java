@@ -29,6 +29,7 @@ public class ClientConnection {
         void onAllUsersReceived(List<User> users);
         void onSessionReceived(ChatSession session, List<Message> history);
         void onNewSessionNotification(String chatID);
+        void onChatLogsReceived(String logContent);
     }
 
     public ClientConnection(String serverHost, int serverPort) {
@@ -185,6 +186,17 @@ public class ClientConnection {
         }
     }
 
+    public void requestChatLogs() {
+        if (!connected.get() || output == null) return;
+
+        try {
+            output.writeObject("GET_CHAT_LOGS");
+            output.flush();
+        } catch (IOException e) {
+            System.err.println("Failed to request chat logs: " + e.getMessage());
+        }
+    }
+
     public void createSession(List<User> participants, boolean isGroup, String chatName) {
         if (!connected.get() || output == null) {
 			return;
@@ -258,6 +270,15 @@ public class ClientConnection {
                             @SuppressWarnings("unchecked")
                             List<User> users = (List<User>) usersObj;
                             messageListener.onAllUsersReceived(users);
+                        }
+                    } else if (command.equals("CHAT_LOGS_DATA")) {
+                        Object logContentObj = input.readObject();
+                        if (logContentObj instanceof String && messageListener != null) {
+                            messageListener.onChatLogsReceived((String) logContentObj);
+                        }
+                    } else if (command.equals("LOG_ACCESS_DENIED")) {
+                        if (messageListener != null) {
+                            messageListener.onChatLogsReceived("Access denied: Admin privileges required.");
                         }
                     } else if (command.startsWith("NEW_SESSION:")) {
                         String chatID = command.substring(12);

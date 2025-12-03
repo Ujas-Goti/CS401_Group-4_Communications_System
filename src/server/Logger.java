@@ -148,4 +148,19 @@ public class Logger {
         }
         return null;
     }
+
+    // Read entire log file contents (for admin viewing)
+    public synchronized String readAllLogs() {
+        StringBuilder content = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                content.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            System.err.println("ERROR reading log file: " + e.getMessage());
+            return "Error reading log file: " + e.getMessage();
+        }
+        return content.toString();
+    }
 }
