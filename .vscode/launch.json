@@ -1,0 +1,28 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Run Server",
+            "request": "launch",
+            "mainClass": "server.Server",
+            "projectName": "CS401_Group-4_Communications_System",
+            "classPaths": [
+                "bin"
+            ],
+            "args": []
+        },
+        {
+            "type": "java",
+            "name": "Run Client (AuthGUI)",
+            "request": "launch",
+            "mainClass": "client.AuthGUI",
+            "projectName": "CS401_Group-4_Communications_System",
+            "classPaths": [
+                "bin"
+            ],
+            "args": []
+        }
+    ]
+}
+

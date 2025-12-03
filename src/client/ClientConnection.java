@@ -187,7 +187,9 @@ public class ClientConnection {
     }
 
     public void requestChatLogs() {
-        if (!connected.get() || output == null) return;
+        if (!connected.get() || output == null) {
+			return;
+		}
 
         try {
             output.writeObject("GET_CHAT_LOGS");

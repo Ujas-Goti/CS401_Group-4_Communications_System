@@ -205,7 +205,7 @@ public class ClientGUI {
                     // For now, the server sends the session when user opens it
                 });
             }
-            
+
             @Override
             public void onChatLogsReceived(String logContent) {
                 SwingUtilities.invokeLater(() -> {
@@ -213,21 +213,21 @@ public class ClientGUI {
                     JDialog logDialog = new JDialog(chat, "Chat Logs", true);
                     logDialog.setSize(800, 600);
                     logDialog.setLocationRelativeTo(chat);
-                    
+
                     JTextArea logArea = new JTextArea();
                     logArea.setEditable(false);
                     logArea.setFont(new Font("Courier New", Font.PLAIN, 12));
                     logArea.setText(logContent);
                     JScrollPane scrollPane = new JScrollPane(logArea);
-                    
+
                     JButton closeButton = new JButton("Close");
                     closeButton.addActionListener(e -> logDialog.dispose());
-                    
+
                     JPanel panel = new JPanel(new BorderLayout());
                     panel.add(new JLabel("Chat Log Contents:"), BorderLayout.NORTH);
                     panel.add(scrollPane, BorderLayout.CENTER);
                     panel.add(closeButton, BorderLayout.SOUTH);
-                    
+
                     logDialog.add(panel);
                     logDialog.setVisible(true);
                 });
@@ -451,7 +451,26 @@ public class ClientGUI {
         JPanel chatHeader = new JPanel(new BorderLayout());
         chatHeader.setBackground(WA_HEADER);
         chatHeader.setBorder(BorderFactory.createEmptyBorder(6, 12, 6, 12));
-        JLabel title = new JLabel(session.isGroupChat() ? "Group: " + session.getChatName() : session.getChatName());
+        
+        // Determine the display name: for private chats, show the other participant's name
+        String displayName;
+        if (session.isGroupChat()) {
+            displayName = "Group: " + session.getChatName();
+        } else {
+            // For private chats, find the other participant (not current user)
+            displayName = session.getChatName();
+            List<User> participants = session.getParticipants();
+            if (participants != null && participants.size() == 2 && currentUser != null) {
+                for (User participant : participants) {
+                    if (!participant.getUserID().equals(currentUser.getUserID())) {
+                        displayName = participant.getUsername();
+                        break;
+                    }
+                }
+            }
+        }
+        
+        JLabel title = new JLabel(displayName);
         title.setForeground(Color.WHITE);
         title.setFont(new Font("Segoe UI", Font.BOLD, 15));
         chatHeader.add(title, BorderLayout.WEST);
@@ -557,29 +576,29 @@ public class ClientGUI {
             JOptionPane.showMessageDialog(chat, "Not connected to server.");
             return;
         }
-        
+
         // Create a dialog to view chat logs
         JDialog logDialog = new JDialog(chat, "Chat Logs", true);
         logDialog.setSize(800, 600);
         logDialog.setLocationRelativeTo(chat);
-        
+
         JTextArea logArea = new JTextArea();
         logArea.setEditable(false);
         logArea.setFont(new Font("Courier New", Font.PLAIN, 12));
         logArea.setText("Loading logs from server...");
         JScrollPane scrollPane = new JScrollPane(logArea);
-        
+
         JButton closeButton = new JButton("Close");
         closeButton.addActionListener(e -> logDialog.dispose());
-        
+
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(new JLabel("Chat Log Contents:"), BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
         panel.add(closeButton, BorderLayout.SOUTH);
-        
+
         logDialog.add(panel);
         logDialog.setVisible(true);
-        
+
         // Request logs from server
         connection.requestChatLogs();
     }

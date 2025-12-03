@@ -238,7 +238,7 @@ public class Server {
                         }
                         return;
                     }
-                    
+
                     if (socket != null && !socket.isClosed()) {
                         String logContent = logger.readAllLogs();
                         output.writeObject("CHAT_LOGS_DATA");
