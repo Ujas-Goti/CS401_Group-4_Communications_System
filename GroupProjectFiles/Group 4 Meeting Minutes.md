@@ -104,7 +104,16 @@
 - 9:00am \- 9:00pm
 - Group members reviewed and accepted pull requests
 - Pushed the Authentication class, ChatManager class, ChatSession class, Connection class, Logger Class, Server Class, and userSession class
-- Pulled the server side into our main branch on github   
+- Pulled the server side into our main branch on github
+
+ **12/02/25**
+-- **Attendees:** Carlos M, Carlos O, Diana, Ujas
+- 9:00am \- 11:00pm
+- Group members reviewed and accepted pull requests
+- Wrote the test files
+- Fixed bugs and issues related to refresh chat module, groupchat issue, connecting multiple clients to the server
+- Pushed each class with bug fixes, correct comments and bug fixes
+- Pulled the server side and testfiles into our main branch on github  
    
 
   
